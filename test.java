@@ -34,6 +34,7 @@ import java.util.Scanner;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.plaf.SliderUI;
  
 import com.googlecode.javacv.cpp.opencv_core.CvArr;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint;
@@ -60,42 +61,101 @@ public class test {
 		sum.main1(null);
 	
 		 FileWriter fstream = null;
+		 FileWriter fstream2 = null;
 			try {
 				fstream = new FileWriter("out.txt");
+				fstream2 = new FileWriter("FULL_result.txt");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-	    	 BufferedWriter out1 = new BufferedWriter(fstream); 
+	    	 BufferedWriter out1 = new BufferedWriter(fstream);
+	    	 BufferedWriter out2 = new BufferedWriter(fstream2);
 		
 		
-		/*BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		JFrame frame = new JFrame();
 	    JLabel label = new JLabel(new ImageIcon(result));
 	    frame.getContentPane().add(label, BorderLayout.CENTER);
 	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    frame.pack();
 	    frame.setVisible(true);
-		*/
-	    int counter=0;
+		
+	    int counter=1;
 	    double temp_data;
-		 while(counter<sum.total_frame_size-1)
+	    
+	    Scanner scan = new Scanner(System.in);
+	    int ii = 100;
+	    
+	    
+	    while(counter<sum.total_frame_size-1)
+		 {
+	    	ii = scan.nextInt();
+			result.setData((sum.frames.get(ii)).getBufferedImage().getRaster());
+	 	    frame.repaint();
+		 }
+	    
+		/* while(counter<sum.total_frame_size-2)
 		 {
 			 int temp_data1=(int) cvCompareHist( getHueHistogram(sum.frames.get(counter),0),  getHueHistogram(sum.frames.get(counter+1),0), CV_COMP_CHISQR);
 			 
-			//			 result.setData((sum.frames.get(counter++)).getBufferedImage().getRaster());
-			 //frame.repaint();
-			 counter++;
+			 try {
+				 out2.write("\nframe: "+counter+" Min : "+(counter/24)+"\tData:"+temp_data1);
+			 	} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			 
+			 
+			 counter++;
+			 if((temp_data1>100000)&& (temp_data1< 999999999))
+			 {
+				 result.setData((sum.frames.get(counter-1)).getBufferedImage().getRaster());
+			 	    frame.repaint();
+				 
+			 	   System.out.println("changing to frame:"+counter); 
+				 
+				   try {
+						 Thread.sleep(500);
+						}  catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					
+			 	  
+				  	result.setData((sum.frames.get(counter)).getBufferedImage().getRaster());
+			 	    frame.repaint();
+				 
+			 	   System.out.println("changing to frame:"+counter+1); 
 				 try {
+					 Thread.sleep(500);
 					 out1.write("\nframe: "+counter+" Min : "+(counter/24)+"\tData:"+temp_data1);
 				 	} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
-			
-		 }
-		 
+				 
+				 	result.setData((sum.frames.get(counter+1)).getBufferedImage().getRaster());
+			 	    frame.repaint();
+				 
+			 	   System.out.println("changing to frame:"+counter+2); 
+			 	   try {
+						 Thread.sleep(500);
+						}  catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					
+			 	  result.setData((sum.frames.get(counter+2)).getBufferedImage().getRaster());
+			 	    frame.repaint();
+			 	    
+			 }
+		 }*/
+		
+			 
 		 try {
 			out1.close();
 		} catch (IOException e) {
@@ -103,18 +163,16 @@ public class test {
 			e.printStackTrace();
 		}
 		 System.out.println(sum.total_frame_size+"\tdone calculating\nMins: "+(((System.currentTimeMillis()-start)/1000)/60));
-			
+	 	
   }
 	 
 	 
 	 
 	 public static CvHistogram getHueHistogram(IplImage image,int ii){
 		    if(image==null || image.nChannels()<3) new Exception("Error!");
-		    IplImage hsvImage= cvCreateImage(image.cvSize(), image.depth(), 3);
-		    cvCvtColor(image, hsvImage, CV_BGR2HSV);
-		    
+		
 		    // Split the 3 channels into 3 images
-		    IplImageArray hsvChannels = splitChannels(hsvImage);
+		    IplImageArray hsvChannels = splitChannels(image);
 		   
 		    int numberOfBins=255;
 		    float minRange= 0f;
@@ -130,7 +188,9 @@ public class test {
 		    
 		    int accumulate = 1;
 		    IplImage mask = null;
-		    cvCalcHist(hsvChannels.position(2),hist, accumulate, null);
+		    cvCalcHist(hsvChannels.position(2),hist, accumulate, mask);
+		    cvCalcHist(hsvChannels.position(0),hist, accumulate, mask);
+		    cvCalcHist(hsvChannels.position(1),hist, accumulate, mask);
 		    return hist;
 		}
 

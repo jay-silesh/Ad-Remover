@@ -76,9 +76,10 @@ public class sum {
 		        
 		        while (offset < file.length() ) {
 		     //   	int[][] bins = new int[3][256];
-		        	write_count++;
-		        	if(write_count>4500)
-		        		break;
+		        	
+		        //	write_count++;
+		        	//if(write_count>2000)
+		        		//break;
 		        	
 		        	
 		        	int ind = 0;
@@ -113,8 +114,9 @@ public class sum {
 		    			
 		    		iplimg=IplImage.createFrom(img);
 		    		result.setData(iplimg.getBufferedImage().getRaster());
-		    		cvCvtColor(iplimg, iplimg1, CV_RGB2YUV);
-		    		frames.add(iplimg1);
+		    		//cvCvtColor(iplimg, iplimg1, CV_RGB2YUV);
+		    		//cvCvtColor(iplimg, iplimg1, CV_BGR2YUV);
+		    		frames.add(iplimg);
 					offset += numRead;
 					
 		        }
