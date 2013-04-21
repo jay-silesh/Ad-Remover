@@ -137,33 +137,8 @@ public class test {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			 
-			 
 			 counter++;
-			 if(((temp_data1>min_threshold)&& (temp_data1< max_threshold)) && (prev_shot[counter]<prev_threshold))
-			//	 if(((temp_data1>min_threshold)&& (temp_data1< max_threshold)) && (prev_shot[counter]<prev_threshold))
-			 {
-				 	
-			 	  
-				  	result.setData((sum.frames.get(counter)).getBufferedImage().getRaster());
-			 	    frame.repaint();
-				 
-			 	   System.out.println("changing to frame:"+counter+1); 
-				 try {
-					 Thread.sleep(500);
-					 out1.write("\nframe: "+counter+" Min : "+(counter/24)+"\tData:"+temp_data1);
-				 	} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				 
-				 	result.setData((sum.frames.get(counter+1)).getBufferedImage().getRaster());
-			 	    frame.repaint();
-				     
-			 }
+			 
 		 }
 		
 			 
