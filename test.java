@@ -51,27 +51,32 @@ import static com.googlecode.javacv.cpp.opencv_calib3d.*;
 import static com.googlecode.javacv.cpp.opencv_objdetect.*;
 public class test {
 
-	
+	static double min_threshold=35000;
+	static double max_threshold=400000000;
+	static double prev_threshold=5000;
 	
 	 public static void main(String atgv[])
 	 {
 		long start=System.currentTimeMillis();
-		 int width = 352;
+	    int width = 352;
 		int height = 288;
 		sum.main1(null);
 	
-		 FileWriter fstream = null;
-		 FileWriter fstream2 = null;
-			try {
-				fstream = new FileWriter("out.txt");
-				fstream2 = new FileWriter("FULL_result.txt");
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	    	 BufferedWriter out1 = new BufferedWriter(fstream);
-	    	 BufferedWriter out2 = new BufferedWriter(fstream2);
 		
+		
+		
+        FileWriter fstream = null;
+	    FileWriter fstream2 = null;
+		try {
+			fstream = new FileWriter("out.txt");
+			fstream2 = new FileWriter("FULL_result.txt");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	 BufferedWriter out1 = new BufferedWriter(fstream);
+    	 BufferedWriter out2 = new BufferedWriter(fstream2);
+	
 		
 		BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		JFrame frame = new JFrame();
@@ -81,23 +86,50 @@ public class test {
 	    frame.pack();
 	    frame.setVisible(true);
 		
-	    int counter=1;
-	    double temp_data;
 	    
-	    Scanner scan = new Scanner(System.in);
-	    int ii = 100;
+	    
+	    /*************************
+	    int count=0;
+		while(count<sum.total_frame_size-1)
+		{
+			result.setData((sum.frames.get(count)).getBufferedImage().getRaster());
+	 	    frame.repaint();
+	 	    count++;
+		}
+		
+		
+		
+		System.out.println("wait");
+		 Scanner scan = new Scanner(System.in);
+	      int ii = scan.nextInt();
+	    
+	    
+	    ***************************/
+	    
+	    
+	    
+	    
+	    int counter=1;
+	    double [] prev_shot=new double[sum.total_frame_size];
+	    
+	    
+	   /* Scanner scan = new Scanner(System.in);
+	      int ii = 100;
 	    
 	    
 	    while(counter<sum.total_frame_size-1)
 		 {
+		 	
 	    	ii = scan.nextInt();
 			result.setData((sum.frames.get(ii)).getBufferedImage().getRaster());
 	 	    frame.repaint();
-		 }
+		 }*/
 	    
-		/* while(counter<sum.total_frame_size-2)
+	    prev_shot[0]=0;
+		 while(counter<sum.total_frame_size-2)
 		 {
 			 int temp_data1=(int) cvCompareHist( getHueHistogram(sum.frames.get(counter),0),  getHueHistogram(sum.frames.get(counter+1),0), CV_COMP_CHISQR);
+			 prev_shot[counter]=temp_data1;
 			 
 			 try {
 				 out2.write("\nframe: "+counter+" Min : "+(counter/24)+"\tData:"+temp_data1);
@@ -108,20 +140,10 @@ public class test {
 			 
 			 
 			 counter++;
-			 if((temp_data1>100000)&& (temp_data1< 999999999))
+			 if(((temp_data1>min_threshold)&& (temp_data1< max_threshold)) && (prev_shot[counter]<prev_threshold))
+			//	 if(((temp_data1>min_threshold)&& (temp_data1< max_threshold)) && (prev_shot[counter]<prev_threshold))
 			 {
-				 result.setData((sum.frames.get(counter-1)).getBufferedImage().getRaster());
-			 	    frame.repaint();
-				 
-			 	   System.out.println("changing to frame:"+counter); 
-				 
-				   try {
-						 Thread.sleep(500);
-						}  catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					
+				 	
 			 	  
 				  	result.setData((sum.frames.get(counter)).getBufferedImage().getRaster());
 			 	    frame.repaint();
@@ -140,20 +162,9 @@ public class test {
 				 
 				 	result.setData((sum.frames.get(counter+1)).getBufferedImage().getRaster());
 			 	    frame.repaint();
-				 
-			 	   System.out.println("changing to frame:"+counter+2); 
-			 	   try {
-						 Thread.sleep(500);
-						}  catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					
-			 	  result.setData((sum.frames.get(counter+2)).getBufferedImage().getRaster());
-			 	    frame.repaint();
-			 	    
+				     
 			 }
-		 }*/
+		 }
 		
 			 
 		 try {

@@ -57,7 +57,10 @@ public class sum {
 			int width = 352;
 			int height = 288;
 			
-		    BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+//		    BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		    BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
+		    
+		    
 		    BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		    
 		    IplImage iplimg = IplImage.create(width, height, IPL_DEPTH_8U, 3);
