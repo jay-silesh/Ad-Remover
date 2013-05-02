@@ -65,16 +65,6 @@ public class sum {
 
 	static int total_frame_size;
 	
-	//Contains all the frames which have gone through Histogram process..
-	static ArrayList<IplImage> frames = new ArrayList<IplImage>() ;
-	
-	
-	//Contains all the frames which have gone through the Feature_detection process..
-	static ArrayList<IplImage> frames_fd = new ArrayList<IplImage>() ;
-	
-	static ArrayList<shots_structure> ss_hist_frames=new ArrayList<shots_structure>();
-	static ArrayList<shots_structure> ss_fd_frames=new ArrayList<shots_structure>();
-	
 	public static int width = 352;
 	public static int height = 288;
 	public static double feature_detection_threshold= 0.35;
@@ -85,7 +75,17 @@ public class sum {
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-			String fileName = "C:\\Users\\Jay\\Documents\\project_files\\video1.rgb";
+		
+		
+		//Contains all the frames which have gone through Histogram process..
+		ArrayList<shots_structure> ss_hist_frames=new ArrayList<shots_structure>();
+		
+		//Contains all the frames which have gone through the Feature_detection process..
+		ArrayList<shots_structure> ss_fd_frames=new ArrayList<shots_structure>();
+		ArrayList<shots_structure> ss_fd_frames_convert=new ArrayList<shots_structure>();
+		
+		long start=System.currentTimeMillis();
+		String fileName = "C:\\Users\\Jay\\Documents\\project_files\\video1.rgb";
 			
 			BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		    
@@ -100,7 +100,7 @@ public class sum {
 		    try {
 			    File file = new File(fileName) ;
 			    InputStream is = new FileInputStream(file) ;
-			    System.out.println(file.length());
+			    System.out.println("Starting.....");
 			    long len = file.length();
 			    byte[] bytes = new byte[width * height * 3];
 			    
@@ -111,11 +111,8 @@ public class sum {
 				/****************************************************************/
 				//Reading the image just once
 						int ind = 0;
-			        	numRead=is.read(bytes, 0,width*height*3);
-			        	
-			        	
-			    		for(int y = 0; y < height; y++){
-			    	
+			        	numRead=is.read(bytes, 0,width*height*3);			        	
+			    		for(int y = 0; y < height; y++){			    	
 			    			for(int x = 0; x < width; x++){
 			    		 
 			    				byte a = 0;
@@ -192,15 +189,24 @@ public class sum {
 		    } catch (IOException e) {
 		      e.printStackTrace();
 		    }
-		    total_frame_size=frames.size();
-		 
+	
+		    
 		    
 		    process_feature_detection(ss_hist_frames,ss_fd_frames);
-		    display_frames(ss_fd_frames);
+		    System.out.println("Mins taken: "+(((System.currentTimeMillis()-start)/1000)/60));
+		    
+		    
+		   //Custom class for converting the frames contained in the Shot_structure
+		    convert_color_space.convert_color(ss_fd_frames,ss_fd_frames_convert,CV_RGB2YCrCb);
+		 
 	
+		  //  extra_functions.write_data(ss_fd_frames);
+		    extra_functions.display_frames(ss_fd_frames,250);
+			
+		    System.out.println("Complete!!\n");
 }
 	
-	 public static void process_feature_detection(ArrayList<shots_structure> ss_hist_frames2, ArrayList<shots_structure> ss_fd_frames2) {
+	 	public static void process_feature_detection(ArrayList<shots_structure> ss_hist_frames2, ArrayList<shots_structure> ss_fd_frames2) {
 		// TODO Auto-generated method stub
 		
 		 	int counter=0;
@@ -219,59 +225,5 @@ public class sum {
 			}			
 			
 	}
-
-	public static void display_frames(ArrayList<shots_structure> ss_fd_frames2) {
-		// TODO Auto-generated method stub
-
-		  	BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-			JFrame frame = new JFrame();
-		    JLabel label = new JLabel(new ImageIcon(result));
-		    frame.getContentPane().add(label, BorderLayout.CENTER);
-		    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		    frame.pack();
-		    frame.setVisible(true);
-			
-		    
-		    /********************************************/
-		    //Writing to a file
-		    FileWriter fstream = null;
-		   try {
-				fstream = new FileWriter("fd_out.txt");
-		   } catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	    	BufferedWriter out1 = new BufferedWriter(fstream);
-	    	
-	    	 /*************************************************************/
-		    
-		    
-		    
-		    
-		    int counter=0;
-		     while(ss_fd_frames2.size()>counter)
-			 {
-			 		  	result.setData(ss_fd_frames2.get(counter++).frame.getBufferedImage().getRaster());
-				 	    frame.repaint();
-				 	    
-				 	    
-				 	   try {
-							 Thread.sleep(500);
-							 int frame_no=ss_fd_frames2.get(counter-1).frame_number;
-							 double temp_val=ss_fd_frames2.get(counter-1).value;
-							 out1.write("\nframe: "+frame_no+" Min : "+(frame_no/24)+"\tData:"+temp_val);
-						 	}  catch (InterruptedException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-						 	} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-			 }
-		
-	}
-	 
-
-
-
+	
 }

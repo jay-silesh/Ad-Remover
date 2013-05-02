@@ -53,7 +53,7 @@ public static IplImageArray splitChannels(IplImage hsvImage) {
 
 public static boolean check_threshold(double temp_data1)
 {
-	double min_threshold=30000;
+	double min_threshold=35000;
 	double max_threshold=400000000;
 	 
 	if( (temp_data1>min_threshold)&& (temp_data1< max_threshold) )
