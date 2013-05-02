@@ -29,6 +29,8 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Scanner;
 
 import javax.swing.ImageIcon;
@@ -55,14 +57,13 @@ public class test {
 	static double max_threshold=400000000;
 	static double prev_threshold=5000;
 	
-	 public static void main(String atgv[])
+	 public static void main1(String atgv[])
 	 {
 		long start=System.currentTimeMillis();
 	    int width = 352;
 		int height = 288;
-		sum.main1(null);
-	
-		
+		//sum.main1(null);
+		ArrayList<shots_structure> s_structure=new ArrayList<>();
 		
 		
         FileWriter fstream = null;
@@ -86,46 +87,12 @@ public class test {
 	    frame.pack();
 	    frame.setVisible(true);
 		
-	    
-	    
-	    /*************************
-	    int count=0;
-		while(count<sum.total_frame_size-1)
-		{
-			result.setData((sum.frames.get(count)).getBufferedImage().getRaster());
-	 	    frame.repaint();
-	 	    count++;
-		}
-		
-		
-		
-		System.out.println("wait");
-		 Scanner scan = new Scanner(System.in);
-	      int ii = scan.nextInt();
-	    
-	    
-	    ***************************/
-	    
-	    
-	    
-	    
 	    int counter=1;
 	    double [] prev_shot=new double[sum.total_frame_size];
 	    
+	    int counter_ss=0;
 	    
-	   /* Scanner scan = new Scanner(System.in);
-	      int ii = 100;
-	    
-	    
-	    while(counter<sum.total_frame_size-1)
-		 {
-		 	
-	    	ii = scan.nextInt();
-			result.setData((sum.frames.get(ii)).getBufferedImage().getRaster());
-	 	    frame.repaint();
-		 }*/
-	    
-	    prev_shot[0]=0;
+	     prev_shot[0]=0;
 		 while(counter<sum.total_frame_size-2)
 		 {
 			 int temp_data1=(int) cvCompareHist( getHueHistogram(sum.frames.get(counter),0),  getHueHistogram(sum.frames.get(counter+1),0), CV_COMP_CHISQR);
@@ -137,17 +104,58 @@ public class test {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			 counter++;
 			 
+			 
+			 counter++;
+			 if(((temp_data1>min_threshold)&& (temp_data1< max_threshold)) && (prev_shot[counter]<prev_threshold))
+			//	 if(((temp_data1>min_threshold)&& (temp_data1< max_threshold)) && (prev_shot[counter]<prev_threshold))
+			 {
+				 	
+			 	  
+		//		  	result.setData((sum.frames.get(counter)).getBufferedImage().getRaster());
+			// 	    frame.repaint();
+				 
+			 //	   System.out.println("changing to frame:"+counter+1); 
+				 try {
+					 Thread.sleep(500);
+				//	 out1.write("\nframe: "+counter+" Min : "+(counter/24)+"\tData:"+temp_data1);
+				 	}  catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				 shots_structure s_temp=new shots_structure();
+				 s_temp.frame_number=counter+1;
+				 s_temp.value=temp_data1;
+				 s_structure.add(s_temp);
+				 result.setData((sum.frames.get(counter+1)).getBufferedImage().getRaster());
+			 	 frame.repaint();
+				     
+			 }
 		 }
 		
 			 
+		 
+		 
+		 Iterator<shots_structure> it = s_structure.iterator();
+		 while(it.hasNext())
+		 {
+			 	shots_structure s_temp=it.next();
+			 try {
+					out1.write("\n"+s_temp.frame_number+"\t"+s_temp.value);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			 
+		 }
 		 try {
-			out1.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+				out1.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		
+		 
 		 System.out.println(sum.total_frame_size+"\tdone calculating\nMins: "+(((System.currentTimeMillis()-start)/1000)/60));
 	 	
   }

@@ -49,7 +49,7 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 		}
     	 BufferedWriter out1 = new BufferedWriter(fstream); 
    //   sum video_file=new sum();
-        sum.main1(null);
+      //  sum.main1(null);
         
         int array_counter=0;
         while(array_counter<sum.total_frame_size-1)
