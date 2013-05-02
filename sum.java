@@ -68,8 +68,12 @@ public class sum {
 	//Contains all the frames which have gone through Histogram process..
 	static ArrayList<IplImage> frames = new ArrayList<IplImage>() ;
 	
+	
 	//Contains all the frames which have gone through the Feature_detection process..
 	static ArrayList<IplImage> frames_fd = new ArrayList<IplImage>() ;
+	
+	static ArrayList<shots_structure> ss_hist_frames=new ArrayList<shots_structure>();
+	static ArrayList<shots_structure> ss_fd_frames=new ArrayList<shots_structure>();
 	
 	public static int width = 352;
 	public static int height = 288;
@@ -90,6 +94,7 @@ public class sum {
 		    
 		    IplImage iplimg = IplImage.create(width, height, IPL_DEPTH_8U, 3);
 		    IplImage iplimg_temp = IplImage.create(width, height, IPL_DEPTH_8U, 3);
+		    int counter_access_frames=0;
 			    
 		    int offset = 0;
 		    try {
@@ -160,16 +165,21 @@ public class sum {
 		    			
 		    		iplimg=IplImage.createFrom(img);
 		    	
-		    		int hist_compared_value=(int) cvCompareHist( getHueHistogram(iplimg_temp),  getHueHistogram(iplimg), CV_COMP_CHISQR);
+		    		int hist_compared_value=(int) cvCompareHist(histogram_color_difference.getHueHistogram(iplimg_temp), histogram_color_difference.getHueHistogram(iplimg), CV_COMP_CHISQR);
 		    		
-		    		if(check_threshold(hist_compared_value))
+		    		if(histogram_color_difference.check_threshold(hist_compared_value))
 		    		{
-		    			frames.add(iplimg);
-		    		}
+		    			shots_structure temp_ss=new shots_structure();
+		    			temp_ss.frame_number=counter_access_frames;
+		    			temp_ss.frame=iplimg;
+		    			temp_ss.value=hist_compared_value;
+		    			ss_hist_frames.add(temp_ss);
+		       		}
 		    		iplimg_temp.deallocate();
 		    		iplimg_temp=IplImage.createFrom(img);
 		    		
 					offset += numRead;
+					counter_access_frames++;
 					
 		        }
 		        is.close();
@@ -184,30 +194,33 @@ public class sum {
 		    }
 		    total_frame_size=frames.size();
 		 
-		    process_feature_detection(frames,frames_fd);
-		    display_frames(frames_fd);
+		    
+		    process_feature_detection(ss_hist_frames,ss_fd_frames);
+		    display_frames(ss_fd_frames);
 	
 }
 	
-	 public static void process_feature_detection(ArrayList<IplImage> frames_input, ArrayList<IplImage> frames_output) {
+	 public static void process_feature_detection(ArrayList<shots_structure> ss_hist_frames2, ArrayList<shots_structure> ss_fd_frames2) {
 		// TODO Auto-generated method stub
 		
 		 	int counter=0;
 		
-			while(counter+1 < frames_input.size())
+			while(counter+1 < ss_hist_frames2.size())
 			{
-				CvMat d1 = feature_detection.featureDetect(frames_input.get(counter++));
-				CvMat d2 = feature_detection.featureDetect(frames_input.get(counter));
+				CvMat d1 = feature_detection.featureDetect(ss_hist_frames2.get(counter++).frame);
+				CvMat d2 = feature_detection.featureDetect(ss_hist_frames2.get(counter).frame);
+				
+				
 				if((feature_detection.match(d1,d2)) >feature_detection_threshold)
 				{
-					frames_output.add(frames_input.get(counter));
+					  ss_fd_frames2.add(ss_hist_frames2.get(counter));
 				}
 
 			}			
 			
 	}
 
-	public static void display_frames(ArrayList<IplImage> frames_temp) {
+	public static void display_frames(ArrayList<shots_structure> ss_fd_frames2) {
 		// TODO Auto-generated method stub
 
 		  	BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -219,71 +232,46 @@ public class sum {
 		    frame.setVisible(true);
 			
 		    
+		    /********************************************/
+		    //Writing to a file
+		    FileWriter fstream = null;
+		   try {
+				fstream = new FileWriter("fd_out.txt");
+		   } catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	    	BufferedWriter out1 = new BufferedWriter(fstream);
+	    	
+	    	 /*************************************************************/
+		    
+		    
+		    
+		    
 		    int counter=0;
-		     while(frames_temp.size()>counter)
+		     while(ss_fd_frames2.size()>counter)
 			 {
-			 		  	result.setData(frames_temp.get(counter++).getBufferedImage().getRaster());
+			 		  	result.setData(ss_fd_frames2.get(counter++).frame.getBufferedImage().getRaster());
 				 	    frame.repaint();
 				 	    
 				 	    
 				 	   try {
 							 Thread.sleep(500);
+							 int frame_no=ss_fd_frames2.get(counter-1).frame_number;
+							 double temp_val=ss_fd_frames2.get(counter-1).value;
+							 out1.write("\nframe: "+frame_no+" Min : "+(frame_no/24)+"\tData:"+temp_val);
 						 	}  catch (InterruptedException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
-						 	}
+						 	} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
 			 }
 		
 	}
 	 
 
-	public static CvHistogram getHueHistogram(IplImage image){
-		    if(image==null || image.nChannels()<3) new Exception("Error!");
-		
-		    // Split the 3 channels into 3 images
-		    IplImageArray hsvChannels = splitChannels(image);
-		   
-		    int numberOfBins=255;
-		    float minRange= 0f;
-		    float maxRange= 180f;
-		    
-		    int dims = 1;
-		    int[]sizes = new int[]{numberOfBins};
-		    int histType = CV_HIST_ARRAY;
-		    float[] minMax = new  float[]{minRange, maxRange};
-		    float[][] ranges = new float[][]{minMax};
-		    int uniform = 1;
-		    CvHistogram hist = cvCreateHist(dims, sizes, histType, ranges, uniform);
-		    
-		    int accumulate = 1;
-		    IplImage mask = null;
-		    cvCalcHist(hsvChannels.position(2),hist, accumulate, mask);
-		    cvCalcHist(hsvChannels.position(0),hist, accumulate, mask);
-		    cvCalcHist(hsvChannels.position(1),hist, accumulate, mask);
-		    return hist;
-		}
 
-
-
-	public static IplImageArray splitChannels(IplImage hsvImage) {
-	    CvSize size = hsvImage.cvSize();
-	    int depth=hsvImage.depth();
-	    IplImage channel0 = cvCreateImage(size, depth, 1);
-	    IplImage channel1 = cvCreateImage(size, depth, 1);
-	    IplImage channel2 = cvCreateImage(size, depth, 1);
-	    cvSplit(hsvImage, channel0, channel1, channel2, null);
-	    return new IplImageArray(channel0, channel1, channel2);
-	}
-	
-	public static boolean check_threshold(double temp_data1)
-	{
-		double min_threshold=30000;
-		double max_threshold=400000000;
-		 
-		if( (temp_data1>min_threshold)&& (temp_data1< max_threshold) )
-			return true;
-		return false;
-	}
-	
 
 }
