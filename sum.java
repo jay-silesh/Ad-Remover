@@ -202,11 +202,11 @@ public class sum {
 		    System.out.println("\nFeature Detection done!...");
 		    System.out.println("Mins taken: "+(((System.currentTimeMillis()-start)/1000)/60));
 		    extra_functions.write_data_difference(ss_fd_frames,1);
-		    merge_shots(ss_fd_frames);
+		    merge_shots(ss_fd_frames,ss_fd_frames_convert);
 		    System.out.println("\nMerging done...");
 		    System.out.println("Mins taken: "+(((System.currentTimeMillis()-start)/1000)/60));
 		    
-		    extra_functions.write_data_difference(ss_fd_frames,2);
+		    extra_functions.write_data_difference(ss_fd_frames_convert,2);
 		//    extra_functions.display_frames(ss_fd_frames,250);
 
 		    System.out.println("Complete!!\n");
@@ -215,7 +215,7 @@ public class sum {
 	 	
 
 		
-		public static void merge_shots(ArrayList<shots_structure> input_ss)
+		public static void merge_shots(ArrayList<shots_structure> input_ss, ArrayList<shots_structure> output_ss)
 		// TODO Auto-generated method stub
 		{
 			int count1=0;
@@ -224,51 +224,89 @@ public class sum {
 			
 			while(count1+1 < max_size)
 			{
-				System.out.println("comapring shots - count "+count1);
-				shots_structure cur1=input_ss.get(count1);
-				if(cur1.tf>merge_threshold)
-				{
-					System.out.println(" tf greater than threshold");
-					shots_structure cur2=input_ss.get(count2);
-					if( (cur2.end_frame-cur1.start_frame) >merge_threshold)
-					{
-						count1++;
-						count2=count1+1;
-						if(count2>max_size)
-							break;
-						continue;						
-					}
-					else
-					{
-						boolean val=check_fd(cur1,cur2);
-						if(val)
+						System.out.println("comapring shots - count "+count1);
+						shots_structure cur1=input_ss.get(count1);
+						shots_structure cur2=input_ss.get(count2);
+						
+						if(cur1.tf<merge_threshold)
 						{
-							/***********MErge function here only *************/
-							input_ss.get(count2).start_frame=input_ss.get(count1).start_frame;
-							int temp_count=count1;
-							while(temp_count<count2)
-							{
-								input_ss.remove(temp_count);
-								temp_count++;
-							}						
-							/*********************************************/
-							count1=count2;
-							count2++;
-							if(count2>max_size)
-								break;
+								System.out.println(" tf greater than threshold");
+								if( (cur2.end_frame-cur1.start_frame) >merge_threshold)
+								{
+									output_ss.add(cur1);
+									count1++;
+									count2=count1+1;
+									if(count2>=max_size)
+										break;
+									continue;						
+								}
+								else
+								{
+									int end_point=input_ss.get(count1).end_frame;
+									int start_point=input_ss.get(count1).start_frame;
+									while(true)
+									{
+										if( (input_ss.get(count2).end_frame-input_ss.get(count1).start_frame) >merge_threshold)
+										{
+											shots_structure temp=new shots_structure();
+											temp.end_frame=end_point;
+											temp.start_frame=start_point;
+											temp.tf=end_point-start_point+1;
+											count1=count2-1;
+											input_ss.get(count1).start_frame=start_point;
+											output_ss.add(temp);
+											break;
+										}
+										else
+										{
+											boolean val=check_fd(input_ss.get(count1), input_ss.get(count2));
+											if(val)
+											{
+												end_point=input_ss.get(count2).end_frame;
+												count2++;
+												if(count2>=max_size)
+												{	
+													shots_structure temp=new shots_structure();
+													temp.end_frame=end_point;
+													temp.start_frame=start_point;
+													temp.tf=end_point-start_point+1;
+													
+													output_ss.add(temp);
+													break;
+												}
+												
+											}
+											else if(!val)
+											{
+												count2++;
+												if(count2>=max_size)
+												{	
+													shots_structure temp=new shots_structure();
+													temp.end_frame=end_point;
+													temp.start_frame=start_point;
+													temp.tf=end_point-start_point+1;
+													output_ss.add(temp);
+													break;
+												}
+											}
+										}
+									
+									}
+									//This is after it breaks...
+									
+									
+										
+								}
 							
 						}
-						else //If frames are not the same
-						{
-							count2++;
-							if(count2>max_size)
-								break;
+						else
+						{	
+							output_ss.add(cur1);
+							count1++;
+							count2=count1+1;
+							if(count2>=max_size)
+								break;							
 						}
-					}
-					
-				}
-				else
-					count1++;
 			}	
 			
 		}
