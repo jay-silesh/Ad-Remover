@@ -207,7 +207,7 @@ public class sum {
 		    System.out.println("Mins taken: "+(((System.currentTimeMillis()-start)/1000)/60));
 		    
 		    extra_functions.write_data_difference(ss_fd_frames_convert,2);
-		//    extra_functions.display_frames(ss_fd_frames,250);
+		    extra_functions.display_frames_NEW(ss_fd_frames_convert,250);
 
 		    System.out.println("Complete!!\n");
 }
@@ -228,13 +228,20 @@ public class sum {
 						shots_structure cur1=input_ss.get(count1);
 						shots_structure cur2=input_ss.get(count2);
 						
-						if(cur1.tf<merge_threshold)
+						if(cur1.tf<=merge_threshold)
 						{
 								System.out.println(" tf greater than threshold");
 								if( (cur2.end_frame-cur1.start_frame) >merge_threshold)
 								{
+									if(!output_ss.isEmpty())
+									{	shots_structure last_ss= output_ss.get(output_ss.size() - 1);
+										if(last_ss.start_frame==cur1.start_frame)
+										{
+											output_ss.remove(output_ss.get(output_ss.size()-1));
+										}
+									}
 									output_ss.add(cur1);
-									count1++;
+									count1=count2;
 									count2=count1+1;
 									if(count2>=max_size)
 										break;
@@ -242,53 +249,86 @@ public class sum {
 								}
 								else
 								{
+									int end_point_frame=count1;
 									int end_point=input_ss.get(count1).end_frame;
 									int start_point=input_ss.get(count1).start_frame;
 									while(true)
 									{
 										if( (input_ss.get(count2).end_frame-input_ss.get(count1).start_frame) >merge_threshold)
 										{
-											shots_structure temp=new shots_structure();
-											temp.end_frame=end_point;
-											temp.start_frame=start_point;
-											temp.tf=end_point-start_point+1;
-											count1=count2-1;
-											input_ss.get(count1).start_frame=start_point;
-											output_ss.add(temp);
-											break;
-										}
-										else
-										{
-											boolean val=check_fd(input_ss.get(count1), input_ss.get(count2));
-											if(val)
-											{
-												end_point=input_ss.get(count2).end_frame;
-												count2++;
-												if(count2>=max_size)
-												{	
 													shots_structure temp=new shots_structure();
 													temp.end_frame=end_point;
 													temp.start_frame=start_point;
 													temp.tf=end_point-start_point+1;
 													
+													if(!output_ss.isEmpty())
+													{	shots_structure last_ss= output_ss.get(output_ss.size() - 1);
+														if(last_ss.start_frame==temp.start_frame)
+														{
+															output_ss.remove(output_ss.get(output_ss.size()-1));
+														}
+													}
 													output_ss.add(temp);
+
+													count1=end_point_frame;
+													count2=count1+1;
+													input_ss.get(end_point_frame).start_frame=start_point;
 													break;
-												}
-												
-											}
-											else if(!val)
-											{
-												count2++;
-												if(count2>=max_size)
-												{	
-													shots_structure temp=new shots_structure();
-													temp.end_frame=end_point;
-													temp.start_frame=start_point;
-													temp.tf=end_point-start_point+1;
-													output_ss.add(temp);
-													break;
-												}
-											}
+										}
+										else
+										{
+													boolean val=check_fd(input_ss.get(count1), input_ss.get(count2));
+													if(val)
+													{
+															end_point=input_ss.get(count2).end_frame;
+															end_point_frame=count2;
+															count2++;
+															if(count2>=max_size)
+															{	
+																	shots_structure temp=new shots_structure();
+																	temp.end_frame=end_point;
+																	temp.start_frame=start_point;
+																	temp.tf=end_point-start_point+1;
+																	if(!output_ss.isEmpty())
+																	{	shots_structure last_ss= output_ss.get(output_ss.size() - 1);
+																		if(last_ss.start_frame==temp.start_frame)
+																		{
+																			output_ss.remove(output_ss.get(output_ss.size()-1));
+																		}
+																	}
+																	output_ss.add(temp);
+																	
+																	count1=end_point_frame;
+																	count2=count1+1;
+																	input_ss.get(end_point_frame).start_frame=start_point;
+																	break;
+															}
+														
+													}
+													else if(!val)
+													{
+															count2++;
+															if(count2>=max_size)
+															{	
+																shots_structure temp=new shots_structure();
+																temp.end_frame=end_point;
+																temp.start_frame=start_point;
+																temp.tf=end_point-start_point+1;
+																
+																if(!output_ss.isEmpty())
+																{	shots_structure last_ss= output_ss.get(output_ss.size() - 1);
+																	if(last_ss.start_frame==temp.start_frame)
+																	{
+																		output_ss.remove(output_ss.get(output_ss.size()-1));
+																	}
+																}
+
+																count1=end_point_frame;
+																count2=count1+1;
+																input_ss.get(end_point_frame).start_frame=start_point;
+																break;
+															}
+													}
 										}
 									
 									}
@@ -301,6 +341,14 @@ public class sum {
 						}
 						else
 						{	
+							if(!output_ss.isEmpty())
+							{	shots_structure last_ss= output_ss.get(output_ss.size() - 1);
+								if(last_ss.start_frame==cur1.start_frame)
+								{
+									output_ss.remove(output_ss.get(output_ss.size()-1));
+								}
+							}
+							
 							output_ss.add(cur1);
 							count1++;
 							count2=count1+1;
@@ -308,8 +356,7 @@ public class sum {
 								break;							
 						}
 			}	
-			
-		}
+	}
 
 
 

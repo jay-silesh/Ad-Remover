@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -113,6 +114,57 @@ public class extra_functions {
 					 	} 
 				 }
 		}
+
+
+
+
+	public static void display_frames_NEW(
+			ArrayList<shots_structure> ss_fd_frames_convert, int i) {
+		// TODO Auto-generated method stub
+		
+		
+		BufferedImage result = new BufferedImage(sum.width, sum.height, BufferedImage.TYPE_INT_RGB);
+		JFrame frame = new JFrame();
+	    JLabel label = new JLabel(new ImageIcon(result));
+	    frame.getContentPane().add(label, BorderLayout.CENTER);
+	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	    frame.pack();
+	    frame.setVisible(true);
+		
+		int counter=0;
+		while(counter<ss_fd_frames_convert.size())
+		{
+			
+			int st=ss_fd_frames_convert.get(counter).start_frame;
+			int et=ss_fd_frames_convert.get(counter).end_frame;
+			
+			
+			
+			while(st<=et)
+			{
+				result.setData( sum.complete_video.get(st).getBufferedImage().getRaster());
+				frame.repaint();
+				 	    
+				 	    
+		 	   try {
+					 Thread.sleep(i);
+				 	}  catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+				 	} 
+				
+				st++;
+				
+			}
+			Scanner scan=new Scanner(System.in);
+			int num=scan.nextInt();
+			counter++;
+			scan.close();
+			
+		}
+		
+		
+	}
 		 
 
 	 
