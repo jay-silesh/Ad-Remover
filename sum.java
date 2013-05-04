@@ -72,6 +72,7 @@ public class sum {
 	public static int width = 352;
 	public static int height = 288;
 	public static double feature_detection_threshold= 0.3;
+	public static int merge_threshold=250;;
 	
 	
 	//static ArrayList<int[][]> image_rgb_values = new ArrayList<int[][]>() ;
@@ -90,7 +91,7 @@ public class sum {
 		ArrayList<shots_structure> ss_fd_frames_convert2=new ArrayList<shots_structure>();
 		
 		long start=System.currentTimeMillis();
-		String fileName = "C:\\Users\\Jay\\Documents\\project_files\\video3.rgb";
+		String fileName = "C:\\Users\\Jay\\Documents\\project_files\\video1.rgb";
 			
 			BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		    
@@ -194,10 +195,18 @@ public class sum {
 		      e.printStackTrace();
 		    }
 		    System.out.println("\nInputted all the frames...\nStarting Feature Detection");
+		    System.out.println("Mins taken: "+(((System.currentTimeMillis()-start)/1000)/60));
+		    start=System.currentTimeMillis();
+		    
 		    process_feature_detection(ss_hist_frames,ss_fd_frames);
+		    System.out.println("\nFeature Detection done!...");
+		    System.out.println("Mins taken: "+(((System.currentTimeMillis()-start)/1000)/60));
+		    extra_functions.write_data_difference(ss_fd_frames,1);
+		    merge_shots(ss_fd_frames);
+		    System.out.println("\nMerging done...");
 		    System.out.println("Mins taken: "+(((System.currentTimeMillis()-start)/1000)/60));
 		    
-		    extra_functions.write_data_difference(ss_fd_frames);
+		    extra_functions.write_data_difference(ss_fd_frames,2);
 		//    extra_functions.display_frames(ss_fd_frames,250);
 
 		    System.out.println("Complete!!\n");
@@ -206,11 +215,112 @@ public class sum {
 	 	
 
 		
+		public static void merge_shots(ArrayList<shots_structure> input_ss)
+		// TODO Auto-generated method stub
+		{
+			int count1=0;
+			int count2=count1+1;
+			int max_size=input_ss.size();
+			
+			while(count1+1 < max_size)
+			{
+				System.out.println("comapring shots - count "+count1);
+				shots_structure cur1=input_ss.get(count1);
+				if(cur1.tf>merge_threshold)
+				{
+					System.out.println(" tf greater than threshold");
+					shots_structure cur2=input_ss.get(count2);
+					if( (cur2.end_frame-cur1.start_frame) >merge_threshold)
+					{
+						count1++;
+						count2=count1+1;
+						if(count2>max_size)
+							break;
+						continue;						
+					}
+					else
+					{
+						boolean val=check_fd(cur1,cur2);
+						if(val)
+						{
+							/***********MErge function here only *************/
+							input_ss.get(count2).start_frame=input_ss.get(count1).start_frame;
+							int temp_count=count1;
+							while(temp_count<count2)
+							{
+								input_ss.remove(temp_count);
+								temp_count++;
+							}						
+							/*********************************************/
+							count1=count2;
+							count2++;
+							if(count2>max_size)
+								break;
+							
+						}
+						else //If frames are not the same
+						{
+							count2++;
+							if(count2>max_size)
+								break;
+						}
+					}
+					
+				}
+				else
+					count1++;
+			}	
+			
+		}
+
+
+
+		public static boolean check_fd(shots_structure cur1,shots_structure cur2)
+		{
+			// TODO Auto-generated method stub
+			
+			int [] ff=new int[]{cur1.start_frame,cur1.end_frame,(cur1.start_frame+cur1.end_frame)/2};
+			int [] sf=new int[]{cur2.start_frame,cur2.end_frame,(cur2.start_frame+cur2.end_frame)/2};
+			
+			
+			for(int i=0;i<ff.length;i++)
+			{
+				for(int j=0;j<sf.length;j++)
+				{
+					
+					CvMat d1 = feature_detection.featureDetect(complete_video.get(ff[i]));
+					CvMat d2 = feature_detection.featureDetect(complete_video.get(sf[j]));
+					
+					if((feature_detection.match(d1,d2)) > feature_detection_threshold)
+					{
+						return true;
+					}
+				}
+			}			
+			return false;
+		}
+
+
+
+
 		public static void process_feature_detection(ArrayList<shots_structure> ss_hist_frames2, ArrayList<shots_structure> ss_fd_frames2) {
 		// TODO Auto-generated method stub
 		
-		 	int counter=0;
+		 	
+			int counter=0;
+			shots_structure temp_ss1=new shots_structure();
+			temp_ss1.start_frame=0;
+			temp_ss1.end_frame=ss_hist_frames2.get(counter).frame_number-1;			
+			temp_ss1.tf=temp_ss1.end_frame-temp_ss1.start_frame+1;			
+			ss_fd_frames2.add(temp_ss1);
+			
+			
+			
+			
+			
 		 	int prev_start=ss_hist_frames2.get(counter).frame_number;
+		 //	int prev_start=0;
+		 	int sum_diff=0;
 			while(counter+1 < ss_hist_frames2.size())
 			{
 				CvMat d1 = feature_detection.featureDetect(complete_video.get(ss_hist_frames2.get(counter).frame_number));
@@ -221,16 +331,18 @@ public class sum {
 				{
 					 	shots_structure temp_ss=new shots_structure();
 						temp_ss.start_frame=prev_start;
-						temp_ss.end_frame=ss_hist_frames2.get(counter+1).frame_number;
+						temp_ss.end_frame=ss_hist_frames2.get(counter+1).frame_number-1;
 						
 						temp_ss.tf=temp_ss.end_frame-temp_ss.start_frame+1;
 						
 						ss_fd_frames2.add(temp_ss);
 						prev_start=ss_hist_frames2.get(counter+1).frame_number;
+						sum_diff+=temp_ss.tf;
 				}
 				counter++;
 
 			}			
+			System.out.println("\nTotal Frames:"+sum_diff);
 			
 	}
 	

@@ -49,11 +49,14 @@ public class extra_functions {
 	 
 	 
 	 
-	 public static void write_data_difference(ArrayList<shots_structure> ss_fd_frames2)
+	 public static void write_data_difference(ArrayList<shots_structure> ss_fd_frames2, int i)
 	 {
 		  FileWriter fstream = null;
 		   try {
+			   if(i==1)
 				fstream = new FileWriter("fd_out.txt");
+			   else
+				   fstream = new FileWriter("Merge_FD.txt");  
 		   } catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
