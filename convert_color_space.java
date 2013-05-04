@@ -16,9 +16,9 @@ public class convert_color_space {
 		while(counter < ss_frames.size())
 		{
 			shots_structure temp_ss=new shots_structure();
-			temp_ss.frame=IplImage.create(sum.width, sum.height, IPL_DEPTH_8U, channels);			
+		//	temp_ss.frame=IplImage.create(sum.width, sum.height, IPL_DEPTH_8U, channels);			
 			
-			cvCvtColor(ss_frames.get(counter).frame,temp_ss.frame, code );
+		//	cvCvtColor(ss_frames.get(counter).frame,temp_ss.frame, code );
 						
 			temp_ss.value=ss_frames.get(counter).value;
 			temp_ss.frame_number=ss_frames.get(counter).frame_number;			
@@ -39,9 +39,9 @@ public class convert_color_space {
 		while(counter < ss_frames.size())
 		{
 			shots_structure temp_ss=new shots_structure();
-			temp_ss.frame=IplImage.create(sum.width, sum.height, IPL_DEPTH_8U, 1);				
+		//	temp_ss.frame=IplImage.create(sum.width, sum.height, IPL_DEPTH_8U, 1);				
 		 //   cvSplit(ss_frames.get(counter).frame,null, temp_ss.frame, null, null);		
-		    cvSplit(ss_frames.get(counter).frame, temp_ss.frame, null,null, null);		
+		 //   cvSplit(ss_frames.get(counter).frame, temp_ss.frame, null,null, null);		
 			temp_ss.value=ss_frames.get(counter).value;
 			temp_ss.frame_number=ss_frames.get(counter).frame_number;			
 			ss_fd_frames_convert.add(temp_ss);

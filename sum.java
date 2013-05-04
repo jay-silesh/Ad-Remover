@@ -74,13 +74,13 @@ public class sum {
 	public static double feature_detection_threshold= 0.3;
 	
 	
-	static ArrayList<int[][]> image_rgb_values = new ArrayList<int[][]>() ;
+	//static ArrayList<int[][]> image_rgb_values = new ArrayList<int[][]>() ;
 	
+	public static ArrayList<IplImage>complete_video =new ArrayList<IplImage>();
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
-		ArrayList<IplImage>complete_video =new ArrayList<IplImage>();
 		//Contains all the frames which have gone through Histogram process..
 		ArrayList<shots_structure> ss_hist_frames=new ArrayList<shots_structure>();
 		
@@ -136,7 +136,7 @@ public class sum {
 			    			
 			    		iplimg_temp=IplImage.createFrom(img);
 			    		offset += numRead;
-						
+			    		complete_video.add(iplimg_temp);
 				/*****************************************************************/
 		        
 		        while (offset < file.length() ) {
@@ -166,14 +166,13 @@ public class sum {
 		    	
 		    			
 		    		iplimg=IplImage.createFrom(img);
-		    	
+		    		complete_video.add(iplimg);
 		    		int hist_compared_value=(int) cvCompareHist(histogram_color_difference.getHueHistogram(iplimg_temp), histogram_color_difference.getHueHistogram(iplimg), CV_COMP_CHISQR);
 		    		
 		    		if(histogram_color_difference.check_threshold(hist_compared_value))
 		    		{
 		    			shots_structure temp_ss=new shots_structure();
 		    			temp_ss.frame_number=counter_access_frames;
-		    			temp_ss.frame=iplimg;
 		    			temp_ss.value=hist_compared_value;
 		    			ss_hist_frames.add(temp_ss);
 		       		}
@@ -194,97 +193,40 @@ public class sum {
 		    } catch (IOException e) {
 		      e.printStackTrace();
 		    }
-	
-		    
-		    
-			   //Custom class for converting the frames contained in the Shot_structure
-		    
-		  //  convert_color_space.convert_color(ss_hist_frames,ss_fd_frames_convert,CV_RGB2RGBA);
-		    
-		//	    convert_color_space.convert_color(ss_hist_frames,ss_fd_frames,CV_RGB2YUV,3);
-		//    convert_color_space.split_channels(ss_fd_frames,ss_fd_frames_convert);
-		    
-		    
+		    System.out.println("\nInputted all the frames...\nStarting Feature Detection");
 		    process_feature_detection(ss_hist_frames,ss_fd_frames);
-		  //  process_y_values(ss_fd_frames);
-		    
-		    
-		    
-//		    filter_images(ss_fd_frames_convert2,ss_hist_frames);
-		    
 		    System.out.println("Mins taken: "+(((System.currentTimeMillis()-start)/1000)/60));
 		    
-	
-		//    convert_color_space.split_channels(ss_fd_frames_convert,ss_fd_frames_convert2);
-		    extra_functions.write_data(ss_fd_frames);
-		    extra_functions.display_frames(ss_fd_frames,250);
-			
-		
+		    extra_functions.write_data_difference(ss_fd_frames);
+		//    extra_functions.display_frames(ss_fd_frames,250);
+
 		    System.out.println("Complete!!\n");
 }
 	
 	 	
 
-		public static void filter_images(ArrayList<shots_structure> yss,
-	 			ArrayList<shots_structure> ori) {
-		// TODO Auto-generated method stub
 		
-	 		BufferedImage result = new BufferedImage(sum.width, sum.height, BufferedImage.TYPE_INT_RGB);
-			JFrame frame = new JFrame();
-		    JLabel label = new JLabel(new ImageIcon(result));
-		    frame.getContentPane().add(label, BorderLayout.CENTER);
-		    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		    frame.pack();
-		    frame.setVisible(true);
-		    
-	 		
-	 		
-	 		int counter_ori=0;
-	 		int counter_yss=0;
-	 		
-	 	   while(yss.size()>counter_yss)
-		   {
-	 		   	
-	 		   			for(int temp_c=counter_ori;temp_c<ori.size();temp_c++)
-	 		   			{
-	 		   				if( (ori.get(temp_c).frame_number) == (yss.get(counter_yss)).frame_number )
-	 		   				{
-		 		   				result.setData(ori.get(temp_c).frame.getBufferedImage().getRaster());
-						 	    try {
-									Thread.sleep(250);
-								} catch (InterruptedException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-						 	    
-		 		   				frame.repaint();
-					 	    
-	 		   					counter_ori=temp_c;
-	 		   				}
-	 		   				
-	 		   			}
-	 		   	
-	 		   	   counter_yss++;
-			 }		     
-	 		
-	}
-
 		public static void process_feature_detection(ArrayList<shots_structure> ss_hist_frames2, ArrayList<shots_structure> ss_fd_frames2) {
 		// TODO Auto-generated method stub
 		
 		 	int counter=0;
-		
+		 	int prev_start=ss_hist_frames2.get(counter).frame_number;
 			while(counter+1 < ss_hist_frames2.size())
 			{
-				CvMat d1 = feature_detection.featureDetect(ss_hist_frames2.get(counter).frame);
-				CvMat d2 = feature_detection.featureDetect(ss_hist_frames2.get(counter+1).frame);
+				CvMat d1 = feature_detection.featureDetect(complete_video.get(ss_hist_frames2.get(counter).frame_number));
+				CvMat d2 = feature_detection.featureDetect(complete_video.get(ss_hist_frames2.get(counter+1).frame_number));
 				
 				
 				if((feature_detection.match(d1,d2)) < feature_detection_threshold)
 				{
-					  ss_fd_frames2.add(ss_hist_frames2.get(counter));
-					  ss_fd_frames2.add(ss_hist_frames2.get(counter+1));
-			//		  counter++;
+					 	shots_structure temp_ss=new shots_structure();
+						temp_ss.start_frame=prev_start;
+						temp_ss.end_frame=ss_hist_frames2.get(counter+1).frame_number;
+						
+						temp_ss.tf=temp_ss.end_frame-temp_ss.start_frame+1;
+						
+						ss_fd_frames2.add(temp_ss);
+						prev_start=ss_hist_frames2.get(counter+1).frame_number;
 				}
 				counter++;
 
