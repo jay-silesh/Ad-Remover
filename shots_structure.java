@@ -8,3 +8,5 @@ public class shots_structure {
 	IplImage frame = new IplImage() ;
 	double value;		//Holds the start time...
 }
+
+

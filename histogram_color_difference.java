@@ -3,6 +3,7 @@ import static com.googlecode.javacv.cpp.opencv_core.cvSplit;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_HIST_ARRAY;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvCalcHist;
 import static com.googlecode.javacv.cpp.opencv_imgproc.cvCreateHist;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvCvtColor;
 
 import com.googlecode.javacv.cpp.opencv_core.CvSize;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -10,13 +11,87 @@ import com.googlecode.javacv.cpp.opencv_core.IplImageArray;
 import com.googlecode.javacv.cpp.opencv_imgproc.CvHistogram;
 
 
+import java.awt.BorderLayout;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+
+import org.ietf.jgss.Oid;
+
+import static com.googlecode.javacv.cpp.opencv_core.CV_RGB;
+
+import static com.googlecode.javacv.cpp.opencv_core.CV_TERMCRIT_EPS;
+import static com.googlecode.javacv.cpp.opencv_core.CV_TERMCRIT_ITER;
+import static com.googlecode.javacv.cpp.opencv_core.IPL_DEPTH_32F;
+import static com.googlecode.javacv.cpp.opencv_core.IPL_DEPTH_8U;
+
+import static com.googlecode.javacv.cpp.opencv_core.cvCreateImage;
+import static com.googlecode.javacv.cpp.opencv_core.cvGetSize;
+import static com.googlecode.javacv.cpp.opencv_core.cvLine;
+import static com.googlecode.javacv.cpp.opencv_core.cvPoint;
+import static com.googlecode.javacv.cpp.opencv_core.cvSize;
+import static com.googlecode.javacv.cpp.opencv_core.cvConvert;
+import static com.googlecode.javacv.cpp.opencv_core.cvSplit;
+import static com.googlecode.javacv.cpp.opencv_core.cvTermCriteria;
+import static com.googlecode.javacv.cpp.opencv_highgui.CV_LOAD_IMAGE_GRAYSCALE;
+import static com.googlecode.javacv.cpp.opencv_highgui.CV_LOAD_IMAGE_UNCHANGED;
+
+import static com.googlecode.javacv.cpp.opencv_highgui.cvLoadImage;
+import static com.googlecode.javacv.cpp.opencv_highgui.cvNamedWindow;
+import static com.googlecode.javacv.cpp.opencv_highgui.cvSaveImage;
+import static com.googlecode.javacv.cpp.opencv_highgui.cvShowImage;
+import static com.googlecode.javacv.cpp.opencv_highgui.cvWaitKey;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_COMP_CHISQR;
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_HIST_ARRAY;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvCalcHist;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvCompareHist;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvCreateHist;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvFindCornerSubPix;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvGoodFeaturesToTrack;
+import static com.googlecode.javacv.cpp.opencv_video.cvCalcOpticalFlowPyrLK;
+
+
+import static com.googlecode.javacv.cpp.opencv_core.*;
+import static com.googlecode.javacv.cpp.opencv_highgui.*;
+import static com.googlecode.javacv.cpp.opencv_imgproc.*;
+
+import com.googlecode.javacv.cpp.opencv_core.CvMat;
+import com.googlecode.javacv.cpp.opencv_core.CvSize;
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
+import com.googlecode.javacv.cpp.opencv_core.IplImageArray;
+import com.googlecode.javacv.cpp.opencv_imgproc.CvHistogram;
+
+import static com.googlecode.javacv.cpp.opencv_core.*;
+
+
+
 public class histogram_color_difference {
 
 	
-	public static CvHistogram getHueHistogram(IplImage image){
-	    if(image==null || image.nChannels()<3) new Exception("Error!");
+	public static CvHistogram getHueHistogram(IplImage image1)
+	{
+	    if(image1==null || image1.nChannels()<3) new Exception("Error!");
 	
 	    // Split the 3 channels into 3 images
+	    CvSize size = image1.cvSize();
+	    int depth=image1.depth();
+	    IplImage image = cvCreateImage(size, depth, 3);
+	    cvCvtColor(image1,image, CV_RGB2HSV );
+	    
+	  
+	    
 	    IplImageArray hsvChannels = splitChannels(image);
 	   
 	    int numberOfBins=255;
