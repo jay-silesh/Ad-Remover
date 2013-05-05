@@ -13,6 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -47,24 +48,14 @@ static int total_frame_size;
 	
 	public static ArrayList<IplImage>complete_video =new ArrayList<IplImage>();
 	
-	public static void main(String[] args) {
+	public static void main888(String[] args) {
 		// TODO Auto-generated method stub
 		
-		//Contains all the frames which have gone through Histogram process..
-		ArrayList<shots_structure> ss_hist_frames=new ArrayList<shots_structure>();
-		
-		//Contains all the frames which have gone through the Feature_detection process..
-		ArrayList<shots_structure> ss_fd_frames=new ArrayList<shots_structure>();
-		ArrayList<shots_structure> ss_fd_frames_convert=new ArrayList<shots_structure>();
-		ArrayList<shots_structure> ss_fd_frames_convert2=new ArrayList<shots_structure>();
-		
-		long start=System.currentTimeMillis();
-		String fileName = "C:\\Users\\Jay\\Documents\\project_files\\video1.rgb";
+		String fileName = "C:\\Users\\Jay\\Documents\\project_files\\video2.rgb";
 			
 			BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		    
 		    
-		    BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		    
 		    IplImage iplimg = IplImage.create(width, height, IPL_DEPTH_8U, 3);
 		    IplImage iplimg_temp = IplImage.create(width, height, IPL_DEPTH_8U, 3);
@@ -80,7 +71,6 @@ static int total_frame_size;
 		    	BufferedWriter out3 = new BufferedWriter(fstream);
 		    
 		    
-		    int counter_access_frames=0;
 			    
 		    int offset = 0;
 		    try {
@@ -156,7 +146,6 @@ static int total_frame_size;
 		    		iplimg_temp=IplImage.createFrom(img);
 		    		
 					offset += numRead;
-					counter_access_frames++;
 					
 		        }
 		        is.close();
@@ -170,6 +159,44 @@ static int total_frame_size;
 		      e.printStackTrace();
 		    }
 		    System.out.println("\n\nComepleted");
+		    
+		    
+		    BufferedImage result = new BufferedImage(sum.width, sum.height, BufferedImage.TYPE_INT_RGB);
+			JFrame frame = new JFrame();
+		    JLabel label = new JLabel(new ImageIcon(result));
+		    frame.getContentPane().add(label, BorderLayout.CENTER);
+		    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		    frame.pack();
+		    frame.setVisible(true);
+		    int counter_no=100;
+		    Scanner scan = new Scanner(System.in);
+		    double hist_compared_value=0;
+
+		     while(true)
+			 {
+		    	 
+		    	 counter_no = scan.nextInt();
+			 	result.setData( (complete_video.get(counter_no)).getBufferedImage().getRaster());
+				frame.repaint();
+				 	    
+				 	    
+		 	   try {
+					 Thread.sleep(250);
+				 	}  catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+				 	} 
+			 
+		 	   result.setData( (complete_video.get(counter_no+1)).getBufferedImage().getRaster());
+				frame.repaint();
+				
+				 hist_compared_value= cvCompareHist(histogram_color_difference.getHueHistogram((complete_video.get(counter_no))), histogram_color_difference.getHueHistogram((complete_video.get(counter_no+1))), CV_COMP_CHISQR);
+	    		System.out.println(hist_compared_value);
+	    		
+	    		
+	    		
+			 
+			 }
 } 
 	
 	

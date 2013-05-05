@@ -79,7 +79,7 @@ public class sum {
 	
 	public static ArrayList<IplImage>complete_video =new ArrayList<IplImage>();
 	
-	public static void main4(String[] args) {
+	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
 		//Contains all the frames which have gone through Histogram process..
@@ -399,16 +399,7 @@ public class sum {
 		
 		 	
 			int counter=0;
-			shots_structure temp_ss1=new shots_structure();
-			temp_ss1.start_frame=0;
-			temp_ss1.end_frame=ss_hist_frames2.get(counter).frame_number-1;			
-			temp_ss1.tf=temp_ss1.end_frame-temp_ss1.start_frame+1;			
-			ss_fd_frames2.add(temp_ss1);
-			
-			
-			
-			
-			
+						
 		 	int prev_start=ss_hist_frames2.get(counter).frame_number;
 		 //	int prev_start=0;
 		 	int sum_diff=0;
@@ -417,36 +408,7 @@ public class sum {
 				CvMat d1 = feature_detection.featureDetect(complete_video.get(ss_hist_frames2.get(counter).frame_number));
 				CvMat d2 = feature_detection.featureDetect(complete_video.get(ss_hist_frames2.get(counter+1).frame_number));
 				
-				double temp_d=(feature_detection.match(d1,d2));
-				if(temp_d==1.0)
-				{
-					shots_structure temp_ss=new shots_structure();
-					temp_ss.start_frame=prev_start;
-					temp_ss.end_frame=ss_hist_frames2.get(counter+1).frame_number-1;					
-					temp_ss.tf=temp_ss.end_frame-temp_ss.start_frame+1;
-					ss_fd_frames2.add(temp_ss);
-					
-					int temp_count2=counter;
-					while(temp_d==1.0)
-					{
-						if( temp_count2 < ss_hist_frames2.size() )
-						{
-							CvMat d3 = feature_detection.featureDetect(complete_video.get(ss_hist_frames2.get(temp_count2).frame_number));
-							temp_d=(feature_detection.match(d1,d3));
-							temp_count2++;
-						}
-						else
-						{
-							temp_count2--;
-							break;
-						}
-							
-					}
-					prev_start=ss_hist_frames2.get(temp_count2).frame_number;
-					counter=temp_count2-1;
-										
-				}				
-				else if(temp_d < feature_detection_threshold)
+				if((feature_detection.match(d1,d2)) < feature_detection_threshold)
 				{
 					 	shots_structure temp_ss=new shots_structure();
 						temp_ss.start_frame=prev_start;

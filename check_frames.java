@@ -48,11 +48,10 @@ static int total_frame_size;
 	
 	public static ArrayList<IplImage>complete_video =new ArrayList<IplImage>();
 	
-	public static void main(String[] args) {
+	public static void main77(String[] args) {
 		// TODO Auto-generated method stub
 		
-		long start=System.currentTimeMillis();
-		String fileName = "C:\\Users\\Jay\\Documents\\project_files\\video1.rgb";
+		String fileName = "C:\\Users\\Jay\\Documents\\project_files\\video2.rgb";
 			
 			BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		    
@@ -137,36 +136,17 @@ static int total_frame_size;
 		    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		    frame.pack();
 		    frame.setVisible(true);
-		    int counter=0;
 		    int counter_no=100;
 		    Scanner scan = new Scanner(System.in);
-		    double hist_compared_value=0;
-
+		    
 		     while(true)
 			 {
 		    	 
-		    	 counter_no = scan.nextInt();
-			 	result.setData( (complete_video.get(counter_no)).getBufferedImage().getRaster());
+		     	result.setData( (complete_video.get(counter_no)).getBufferedImage().getRaster());
 				frame.repaint();
 				 	    
-				 	    
-		 	   try {
-					 Thread.sleep(250);
-				 	}  catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-				 	} 
-			 
-		 	   result.setData( (complete_video.get(counter_no+1)).getBufferedImage().getRaster());
-				frame.repaint();
-				
-				 hist_compared_value= cvCompareHist(histogram_color_difference.getHueHistogram((complete_video.get(counter_no))), histogram_color_difference.getHueHistogram((complete_video.get(counter_no+1))), CV_COMP_CHISQR);
-	    		System.out.println(hist_compared_value);
-	    		
-	    		
-	    		
-			 
-			 }
+				 counter_no = scan.nextInt();
+			}
 		    
 		    
 		    

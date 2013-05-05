@@ -84,18 +84,18 @@ public class histogram_color_difference {
 	{
 	   
 		if(image1==null || image1.nChannels()<3) new Exception("Error!");
-		/*
-		if(image1==null || image1.nChannels()<3) new Exception("Error!");
+		
+	//	if(image1==null || image1.nChannels()<3) new Exception("Error!");
 	
 	    // Split the 3 channels into 3 images
 	    CvSize size = image1.cvSize();
 	    int depth=image1.depth();
 	    IplImage image = cvCreateImage(size, depth, 3);
-	    cvCvtColor(image1,image, CV_RGB2HSV );
-	*/    
+	    cvCvtColor(image1,image, CV_RGB2YUV );
+	    
 	  
 	    
-	    IplImageArray hsvChannels = splitChannels(image1);
+	    IplImageArray hsvChannels = splitChannels(image);
 	   
 	    int numberOfBins=255;
 	    float minRange= 0f;
@@ -109,11 +109,13 @@ public class histogram_color_difference {
 	    int uniform = 1;
 	    CvHistogram hist = cvCreateHist(dims, sizes, histType, ranges, uniform);
 	    
-	    int accumulate = 1;
+	    int accumulate = 0;
 	    IplImage mask = null;
-	    cvCalcHist(hsvChannels.position(2),hist, accumulate, mask);
+	//    cvCalcHist(hsvChannels.position(1),hist, accumulate, mask);
+	 //   cvCalcHist(hsvChannels.position(2),hist, accumulate, mask);
 	    cvCalcHist(hsvChannels.position(0),hist, accumulate, mask);
-	    cvCalcHist(hsvChannels.position(1),hist, accumulate, mask);
+		 
+	 
 	    return hist;
 	}
 
@@ -131,7 +133,10 @@ public static IplImageArray splitChannels(IplImage hsvImage) {
 
 public static boolean check_threshold(double temp_data1)
 {
-	double min_threshold=35000;
+	/*double min_threshold=35000;
+	double max_threshold=400000000;*/
+	
+	double min_threshold=10000;
 	double max_threshold=400000000;
 	 
 	if( (temp_data1>min_threshold)&& (temp_data1< max_threshold) )
