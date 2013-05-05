@@ -82,17 +82,20 @@ public class histogram_color_difference {
 	
 	public static CvHistogram getHueHistogram(IplImage image1)
 	{
-	    if(image1==null || image1.nChannels()<3) new Exception("Error!");
+	   
+		if(image1==null || image1.nChannels()<3) new Exception("Error!");
+		/*
+		if(image1==null || image1.nChannels()<3) new Exception("Error!");
 	
 	    // Split the 3 channels into 3 images
 	    CvSize size = image1.cvSize();
 	    int depth=image1.depth();
 	    IplImage image = cvCreateImage(size, depth, 3);
 	    cvCvtColor(image1,image, CV_RGB2HSV );
-	    
+	*/    
 	  
 	    
-	    IplImageArray hsvChannels = splitChannels(image);
+	    IplImageArray hsvChannels = splitChannels(image1);
 	   
 	    int numberOfBins=255;
 	    float minRange= 0f;

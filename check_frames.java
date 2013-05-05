@@ -13,6 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -33,7 +34,7 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.*;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 
-public class test_rgb {
+public class check_frames {
 
 static int total_frame_size;
 	
@@ -50,21 +51,12 @@ static int total_frame_size;
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
-		//Contains all the frames which have gone through Histogram process..
-		ArrayList<shots_structure> ss_hist_frames=new ArrayList<shots_structure>();
-		
-		//Contains all the frames which have gone through the Feature_detection process..
-		ArrayList<shots_structure> ss_fd_frames=new ArrayList<shots_structure>();
-		ArrayList<shots_structure> ss_fd_frames_convert=new ArrayList<shots_structure>();
-		ArrayList<shots_structure> ss_fd_frames_convert2=new ArrayList<shots_structure>();
-		
 		long start=System.currentTimeMillis();
 		String fileName = "C:\\Users\\Jay\\Documents\\project_files\\video1.rgb";
 			
 			BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		    
 		    
-		    BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		    
 		    IplImage iplimg = IplImage.create(width, height, IPL_DEPTH_8U, 3);
 		    IplImage iplimg_temp = IplImage.create(width, height, IPL_DEPTH_8U, 3);
@@ -93,37 +85,10 @@ static int total_frame_size;
 			    int numRead = 0;
 				
 				
-				
-				/****************************************************************/
-				//Reading the image just once
-						int ind = 0;
-			        	numRead=is.read(bytes, 0,width*height*3);			        	
-			    		for(int y = 0; y < height; y++){			    	
-			    			for(int x = 0; x < width; x++){
-			    		 
-			    				byte a = 0;
-			    				byte r = bytes[ind+height*width*2];
-			    				byte g = bytes[ind+height*width];
-			    				byte b = bytes[ind]; 
-			    				
-			    				int pix = 0xff000000 | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
-			    				img.setRGB(x,y,pix);
-			    			
-			    				ind++;
-			    			}
-			    		}
-			    		
-			    	
-			    			
-			    		iplimg_temp=IplImage.createFrom(img);
-			    		offset += numRead;
-			    		complete_video.add(iplimg_temp);
-				/*****************************************************************/
-		        
 		        while (offset < file.length() ) {
 		        	
 		        	
-		        	ind = 0;
+		        	int ind = 0;
 		        	numRead=is.read(bytes, 0,width*height*3);
 		        	if(numRead < 0)
 		        		break;
@@ -148,14 +113,7 @@ static int total_frame_size;
 		    			
 		    		iplimg=IplImage.createFrom(img);
 		    		complete_video.add(iplimg);
-		    		int hist_compared_value=(int) cvCompareHist(histogram_color_difference.getHueHistogram(iplimg_temp), histogram_color_difference.getHueHistogram(iplimg), CV_COMP_CHISQR);
-		    		
-		    		out3.write(hist_compared_value+"\n");
-		    		
-		    		iplimg_temp.deallocate();
-		    		iplimg_temp=IplImage.createFrom(img);
-		    		
-					offset += numRead;
+		    		offset += numRead;
 					counter_access_frames++;
 					
 		        }
@@ -169,7 +127,51 @@ static int total_frame_size;
 		    } catch (IOException e) {
 		      e.printStackTrace();
 		    }
-		    System.out.println("\n\nComepleted");
+		    System.out.println("completed iputting...");
+		    
+		    
+		    BufferedImage result = new BufferedImage(sum.width, sum.height, BufferedImage.TYPE_INT_RGB);
+			JFrame frame = new JFrame();
+		    JLabel label = new JLabel(new ImageIcon(result));
+		    frame.getContentPane().add(label, BorderLayout.CENTER);
+		    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		    frame.pack();
+		    frame.setVisible(true);
+		    int counter=0;
+		    int counter_no=100;
+		    Scanner scan = new Scanner(System.in);
+		    double hist_compared_value=0;
+
+		     while(true)
+			 {
+		    	 
+		    	 counter_no = scan.nextInt();
+			 	result.setData( (complete_video.get(counter_no)).getBufferedImage().getRaster());
+				frame.repaint();
+				 	    
+				 	    
+		 	   try {
+					 Thread.sleep(250);
+				 	}  catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+				 	} 
+			 
+		 	   result.setData( (complete_video.get(counter_no+1)).getBufferedImage().getRaster());
+				frame.repaint();
+				
+				 hist_compared_value= cvCompareHist(histogram_color_difference.getHueHistogram((complete_video.get(counter_no))), histogram_color_difference.getHueHistogram((complete_video.get(counter_no+1))), CV_COMP_CHISQR);
+	    		System.out.println(hist_compared_value);
+	    		
+	    		
+	    		
+			 
+			 }
+		    
+		    
+		    
+		    
+		    
 } 
 	
 	

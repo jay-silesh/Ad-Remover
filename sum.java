@@ -79,7 +79,7 @@ public class sum {
 	
 	public static ArrayList<IplImage>complete_video =new ArrayList<IplImage>();
 	
-	public static void main(String[] args) {
+	public static void main4(String[] args) {
 		// TODO Auto-generated method stub
 		
 		//Contains all the frames which have gone through Histogram process..
@@ -91,7 +91,7 @@ public class sum {
 		ArrayList<shots_structure> ss_fd_frames_convert2=new ArrayList<shots_structure>();
 		
 		long start=System.currentTimeMillis();
-		String fileName = "C:\\Users\\Jay\\Documents\\project_files\\video2.rgb";
+		String fileName = "C:\\Users\\Jay\\Documents\\project_files\\video1.rgb";
 			
 			BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		    
@@ -249,13 +249,9 @@ public class sum {
 								else
 								{
 									if(end_point_frame>count1)
-									{		
 										count1=end_point_frame;
-									}
 									else if(end_point_frame==-1) 
-									{
 										end_point_frame=count1;
-									}
 									else if (end_point_frame==count1)
 									{
 										end_point_frame=count1+1;
@@ -421,8 +417,36 @@ public class sum {
 				CvMat d1 = feature_detection.featureDetect(complete_video.get(ss_hist_frames2.get(counter).frame_number));
 				CvMat d2 = feature_detection.featureDetect(complete_video.get(ss_hist_frames2.get(counter+1).frame_number));
 				
-				
-				if((feature_detection.match(d1,d2)) < feature_detection_threshold)
+				double temp_d=(feature_detection.match(d1,d2));
+				if(temp_d==1.0)
+				{
+					shots_structure temp_ss=new shots_structure();
+					temp_ss.start_frame=prev_start;
+					temp_ss.end_frame=ss_hist_frames2.get(counter+1).frame_number-1;					
+					temp_ss.tf=temp_ss.end_frame-temp_ss.start_frame+1;
+					ss_fd_frames2.add(temp_ss);
+					
+					int temp_count2=counter;
+					while(temp_d==1.0)
+					{
+						if( temp_count2 < ss_hist_frames2.size() )
+						{
+							CvMat d3 = feature_detection.featureDetect(complete_video.get(ss_hist_frames2.get(temp_count2).frame_number));
+							temp_d=(feature_detection.match(d1,d3));
+							temp_count2++;
+						}
+						else
+						{
+							temp_count2--;
+							break;
+						}
+							
+					}
+					prev_start=ss_hist_frames2.get(temp_count2).frame_number;
+					counter=temp_count2-1;
+										
+				}				
+				else if(temp_d < feature_detection_threshold)
 				{
 					 	shots_structure temp_ss=new shots_structure();
 						temp_ss.start_frame=prev_start;
