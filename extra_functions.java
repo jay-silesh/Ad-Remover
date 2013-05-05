@@ -1,8 +1,11 @@
 import java.awt.BorderLayout;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -130,7 +133,7 @@ public class extra_functions {
 	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    frame.pack();
 	    frame.setVisible(true);
-		
+	    byte b = 0;
 		int counter=0;
 		while(counter<ss_fd_frames_convert.size())
 		{
@@ -138,16 +141,16 @@ public class extra_functions {
 			int st=ss_fd_frames_convert.get(counter).start_frame;
 			int et=ss_fd_frames_convert.get(counter).end_frame;
 			
-			
-			
+			System.out.println(st+"\t"+et);
+			int ii=0;
 			while(st<=et)
 			{
-				result.setData( sum.complete_video.get(st).getBufferedImage().getRaster());
+				 
+				result.setData( sum.complete_video.get(st+1).getBufferedImage().getRaster());
 				frame.repaint();
 				 	    
-				 	    
 		 	   try {
-					 Thread.sleep(i);
+					 Thread.sleep(40);
 				 	}  catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -156,10 +159,19 @@ public class extra_functions {
 				st++;
 				
 			}
-			Scanner scan=new Scanner(System.in);
-			int num=scan.nextInt();
 			counter++;
-			scan.close();
+			
+			DataInputStream in=new DataInputStream(System.in);
+			
+			try {
+				b = in.readByte();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			char ch=(char)b;
+			
+			
 			
 		}
 		

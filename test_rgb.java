@@ -109,11 +109,11 @@ static int total_frame_size;
 		    			
 		    		iplimg=IplImage.createFrom(img);
 		    		
-		    		cvCvtColor(iplimg,test_image, CV_BGRA2YUV_IYUV);
+		    	//	cvCvtColor(iplimg,test_image, CV_BGRA2YUV_IYUV);
 		    		
 		    		result.setData(iplimg.getBufferedImage().getRaster());
 		    	
-		    		frame.revalidate();
+		    		//frame.revalidate();
 		    		frame.repaint();
 		    		
 					offset += numRead;

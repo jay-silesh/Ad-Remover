@@ -72,7 +72,7 @@ public class sum {
 	public static int width = 352;
 	public static int height = 288;
 	public static double feature_detection_threshold= 0.3;
-	public static int merge_threshold=250;;
+	public static int merge_threshold=250;
 	
 	
 	//static ArrayList<int[][]> image_rgb_values = new ArrayList<int[][]>() ;
@@ -91,7 +91,7 @@ public class sum {
 		ArrayList<shots_structure> ss_fd_frames_convert2=new ArrayList<shots_structure>();
 		
 		long start=System.currentTimeMillis();
-		String fileName = "C:\\Users\\Jay\\Documents\\project_files\\video1.rgb";
+		String fileName = "C:\\Users\\Jay\\Documents\\project_files\\video2.rgb";
 			
 			BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		    
@@ -196,7 +196,6 @@ public class sum {
 		    }
 		    System.out.println("\nInputted all the frames...\nStarting Feature Detection");
 		    System.out.println("Mins taken: "+(((System.currentTimeMillis()-start)/1000)/60));
-		    start=System.currentTimeMillis();
 		    
 		    process_feature_detection(ss_hist_frames,ss_fd_frames);
 		    System.out.println("\nFeature Detection done!...");
@@ -221,7 +220,7 @@ public class sum {
 			int count1=0;
 			int count2=count1+1;
 			int max_size=input_ss.size();
-			
+			int end_point_frame=-1;
 			while(count1+1 < max_size)
 			{
 						System.out.println("comapring shots - count "+count1);
@@ -249,7 +248,21 @@ public class sum {
 								}
 								else
 								{
-									int end_point_frame=count1;
+									if(end_point_frame>count1)
+									{		
+										count1=end_point_frame;
+									}
+									else if(end_point_frame==-1) 
+									{
+										end_point_frame=count1;
+									}
+									else if (end_point_frame==count1)
+									{
+										end_point_frame=count1+1;
+										count1++;
+									}
+									count2=count1+1;
+										
 									int end_point=input_ss.get(count1).end_frame;
 									int start_point=input_ss.get(count1).start_frame;
 									while(true)
@@ -333,9 +346,6 @@ public class sum {
 									
 									}
 									//This is after it breaks...
-									
-									
-										
 								}
 							
 						}
