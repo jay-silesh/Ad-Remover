@@ -2,6 +2,7 @@ import java.awt.BorderLayout;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.BufferedWriter;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -112,7 +113,16 @@ public class sum {
 			    
 			    int numRead = 0;
 				
-				
+				/****************************************************************/
+			    
+			/*    JFrame frame = new JFrame();
+			    JLabel label = new JLabel(new ImageIcon(result));
+			    frame.getContentPane().add(label, BorderLayout.CENTER);
+			    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			    frame.pack();
+			    frame.setVisible(true);
+			    */
+			    /****************************************************************/
 				
 				/****************************************************************/
 				//Reading the image just once
@@ -139,7 +149,8 @@ public class sum {
 			    		offset += numRead;
 			    		complete_video.add(iplimg_temp);
 				/*****************************************************************/
-		        
+			    		Scanner scan = new Scanner(System.in);
+						
 		        while (offset < file.length() ) {
 		        	
 		        	
@@ -169,9 +180,20 @@ public class sum {
 		    		iplimg=IplImage.createFrom(img);
 		    		complete_video.add(iplimg);
 		    		int hist_compared_value=(int) cvCompareHist(histogram_color_difference.getHueHistogram(iplimg_temp), histogram_color_difference.getHueHistogram(iplimg), CV_COMP_CHISQR);
-		    		
+		    		 byte b = 0;
+		    			
 		    		if(histogram_color_difference.check_threshold(hist_compared_value))
 		    		{
+		    			
+		    			/*System.out.println("Adding frame no: "+counter_access_frames);
+		    			result.setData( iplimg.getBufferedImage().getRaster());
+						frame.repaint();
+						
+						DataInputStream in=new DataInputStream(System.in);
+			
+
+						int i = scan.nextInt();*/
+						
 		    			shots_structure temp_ss=new shots_structure();
 		    			temp_ss.frame_number=counter_access_frames;
 		    			temp_ss.value=hist_compared_value;
@@ -399,7 +421,13 @@ public class sum {
 		
 		 	
 			int counter=0;
-						
+			shots_structure temp_ss1=new shots_structure();
+			temp_ss1.start_frame=0;
+			temp_ss1.end_frame=ss_hist_frames2.get(counter).frame_number-1;			
+			temp_ss1.tf=temp_ss1.end_frame-temp_ss1.start_frame+1;			
+			ss_fd_frames2.add(temp_ss1);
+			
+			
 		 	int prev_start=ss_hist_frames2.get(counter).frame_number;
 		 //	int prev_start=0;
 		 	int sum_diff=0;
@@ -408,7 +436,29 @@ public class sum {
 				CvMat d1 = feature_detection.featureDetect(complete_video.get(ss_hist_frames2.get(counter).frame_number));
 				CvMat d2 = feature_detection.featureDetect(complete_video.get(ss_hist_frames2.get(counter+1).frame_number));
 				
-				if((feature_detection.match(d1,d2)) < feature_detection_threshold)
+				double fd_value=(feature_detection.match(d1,d2));
+				
+				if(fd_value==1.0)
+				{
+					shots_structure temp_ss=new shots_structure();
+					temp_ss.start_frame=prev_start;
+					temp_ss.end_frame=ss_hist_frames2.get(counter).frame_number;
+					temp_ss.tf=temp_ss.end_frame-temp_ss.start_frame+1;
+					ss_fd_frames2.add(temp_ss);
+					
+					int image_no=ss_hist_frames2.get(counter+1).frame_number;
+					double dxdy=1.0;
+					while(dxdy==1.0 )
+					{
+						CvMat dx = feature_detection.featureDetect(complete_video.get(image_no));
+						CvMat dy = feature_detection.featureDetect(complete_video.get(image_no+1));
+						dxdy=(feature_detection.match(dx,dy));
+						prev_start=image_no++;
+					}
+					counter++;
+					
+				}
+				else if( fd_value < feature_detection_threshold)
 				{
 					 	shots_structure temp_ss=new shots_structure();
 						temp_ss.start_frame=prev_start;
