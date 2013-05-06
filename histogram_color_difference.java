@@ -78,6 +78,8 @@ import static com.googlecode.javacv.cpp.opencv_core.*;
 
 
 public class histogram_color_difference {
+	static double min_threshold=10000;
+	static double max_threshold=400000000;
 
 	
 	public static CvHistogram getHueHistogram(IplImage image1)
@@ -140,8 +142,6 @@ public static boolean check_threshold(double temp_data1)
 	/*double min_threshold=35000;
 	double max_threshold=400000000;*/
 	
-	double min_threshold=10000;
-	double max_threshold=400000000;
 	 
 	if( (temp_data1>min_threshold)&& (temp_data1< max_threshold) )
 		return true;

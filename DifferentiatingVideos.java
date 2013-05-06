@@ -1,6 +1,12 @@
+import static com.googlecode.javacv.cpp.opencv_imgproc.CV_COMP_CHISQR;
+import static com.googlecode.javacv.cpp.opencv_imgproc.cvCompareHist;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
+
+import javax.swing.text.StyledEditorKit.BoldAction;
+import javax.swing.text.html.MinimalHTMLWriter;
 
 import com.googlecode.javacv.cpp.opencv_core.CvMat;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -12,104 +18,116 @@ public class DifferentiatingVideos {
 	public static LinkedList<shots_structure>maxstructure;
 	public static LinkedList<shots_structure>smallstructure;
 	
-	public static void differ_shots(ArrayList<shots_structure> input_shots){
+	public static ArrayList<shots_structure> video_shots;
+	public static ArrayList<shots_structure> ad_shots;
+	
+	
+	public static void differ_shots(ArrayList<shots_structure> input_shots)
+	{
 		
-		maxstructure = new LinkedList<shots_structure>();
-		smallstructure = new LinkedList<shots_structure>();
+		video_shots=new ArrayList<shots_structure>();
+		ad_shots=new ArrayList<shots_structure>();
+		int max=0,curmax=0;
 		
 		Iterator<shots_structure > it = input_shots.iterator();
-		int max=0,curmax=0;
-		int mid=0,mid1=0,mid2=0,tempmid1=0,tempmid2=0,tempmid=0;;
-		
-		shots_structure maxshot = new shots_structure();
-		while(it.hasNext()){
+		int it_counter=0;
+		int it_max=0;
+		while(it.hasNext())
+		{
 			shots_structure temp = it.next();
 			curmax =  temp.end_frame - temp.start_frame+1 ;
-			
-			if(curmax > max){
-				
-				
-				maxshot.copy(temp);
+			if(curmax > max)
+			{
+				it_max=it_counter;
 				max = curmax;
 			}
+			it_counter++;
+		}		
+		video_shots.add(input_shots.get(it_max));
+		input_shots.remove(it_max);
+		
+				
+		for(int j=0;j<input_shots.size()-1;j++)
+		{
+			int []mid_value_in=new int[5];
+			
+			get_mid_value(input_shots.get(j).end_frame,input_shots.get(j).start_frame,mid_value_in,1);
+			Boolean var=false;
+			int temp_i=0;
+			for(int i=0;i< (video_shots.size()-1) ;i++)
+			{
+				temp_i=i;
+				int []mid_value_out=new int[5];
+				
+				get_mid_value(video_shots.get(i).end_frame,video_shots.get(i).start_frame,mid_value_out,1);
+				 var =checksimilarity(mid_value_in,mid_value_out);
+				if(var)
+				{
+					video_shots.add(input_shots.get(j));
+					break;
+				}
+				
+			}
+			if(!var)
+			{
+			ad_shots.add(input_shots.get(temp_i));
+			
+			}
 		}
 		
-		ArrayList<IplImage> maximages = new ArrayList<IplImage>();
-		mid = (maxshot.end_frame + maxshot.start_frame)/2;
-		
-		/*System.out.println("mid "+mid);
-		System.out.println("maxshot start "+maxshot.start_frame);
-		System.out.println("maxshot end"+maxshot.end_frame);*/
-		
-		mid1 = (mid + maxshot.start_frame)/2 ;
-		mid2 = (maxshot.end_frame + mid)/2;
-		
-		/*System.out.println("mid1 "+mid1);
-		System.out.println("mid1 "+mid1);*/
-		
-		
-		maximages.add(sum.complete_video.get(maxshot.start_frame));
-		maximages.add(sum.complete_video.get(mid1));
-		maximages.add(sum.complete_video.get(mid));
-		maximages.add(sum.complete_video.get(mid2));
-		maximages.add(sum.complete_video.get(maxshot.end_frame));
-		Iterator<shots_structure > shots = input_shots.iterator();
-		
-		//maxstructure.add(maxshot);
-		
-		while(shots.hasNext()){
-			ArrayList<IplImage> tempimages = new ArrayList<IplImage>();
-			shots_structure temp = shots.next();
-			if(temp.end_frame-temp.start_frame > 5)
-			{	
-				
-				tempmid = (temp.end_frame + temp.start_frame)/2 ;
-				tempmid1 = (tempmid + temp.start_frame)/2 ;
-				tempmid2 = (temp.end_frame + tempmid)/2;
-				tempimages.add(sum.complete_video.get(temp.start_frame));
-				tempimages.add(sum.complete_video.get(tempmid1));
-				tempimages.add(sum.complete_video.get(tempmid));
-				tempimages.add(sum.complete_video.get(tempmid2));
-				tempimages.add(sum.complete_video.get(temp.end_frame));
-				
-				}
-			else{
-				
-				/*ArrayList<IplImage> tempimages = new ArrayList<IplImage>();*/
-				
-				for(int i =temp.start_frame;i<=temp.end_frame;i++)
-					tempimages.add(sum.complete_video.get(i));
-				}
+		//Doing this for all ad_shots now..
+		for(int j=0;j<ad_shots.size()-1;j++)
+		{
+			int []mid_value_in=new int[5];
 			
-			boolean var =checksimilarity(maximages,tempimages);
-			
-			if(var){
-				maxstructure.add(temp);
-			}
-			else{
-				smallstructure.add(temp);
+			get_mid_value(ad_shots.get(j).end_frame,ad_shots.get(j).start_frame,mid_value_in,2);
+			Boolean var=false;
+			for(int i=0;i< (video_shots.size()-1) ;i++)
+			{
+				int []mid_value_out=new int[5];
+				
+				get_mid_value(video_shots.get(i).end_frame,video_shots.get(i).start_frame,mid_value_out,2);
+				var =checksimilarity(mid_value_in,mid_value_out);
+				if(var)
+				{
+					video_shots.add(ad_shots.get(j));
+					break;
+				}
+				
 			}
 			
 		}
-		
+}
+
+	public static void get_mid_value(int end_frame, int start_frame, int[] mid_value_in,int i) {
+		// TODO Auto-generated method stub
+		mid_value_in[0]=start_frame;
+		mid_value_in[4]=end_frame;				
+		int tempmid=(end_frame + start_frame+i)/2 ;
+		mid_value_in[1] = tempmid;
+		mid_value_in[2] = (tempmid + start_frame)/2 ;
+		mid_value_in[3] = (end_frame + tempmid)/2;
 	}
 
-	private static boolean checksimilarity(ArrayList<IplImage> maximages,
-			ArrayList<IplImage> tempimages) {
+
+	public static boolean checksimilarity(int[] maximages,int[] tempimages) {
 		// TODO Auto-generated method stub
 		
 		
 		
-		for(int i=0; i<maximages.size()-1;i++){
+		for(int i=0; i<maximages.length-1;i++){
 			
-			for(int j=0; j<tempimages.size()-1;j++){
+			IplImage first_image=sum.complete_video.get(maximages[i]);			
+			CvMat d1 = feature_detection.featureDetect(first_image);
+			for(int j=0; j<tempimages.length-1;j++){
 				
-				CvMat d1 = feature_detection.featureDetect(maximages.get(i));
-				CvMat d2 = feature_detection.featureDetect(tempimages.get(j));
+				IplImage second_image= sum.complete_video.get(tempimages[j]);
+				CvMat d2 = feature_detection.featureDetect(second_image);
 				
-				double fd_value=(feature_detection.match(d1,d2));
-				
-				if((fd_value > fd_threshold) ){
+				int hist_compared_value=(int) cvCompareHist(histogram_color_difference.getHueHistogram(first_image), histogram_color_difference.getHueHistogram(second_image), CV_COMP_CHISQR);
+		    	
+				if((feature_detection.match(d1,d2) > fd_threshold) || (hist_compared_value<histogram_color_difference.min_threshold) )
+				{
 					
 					return true;
 				}
@@ -120,5 +138,6 @@ public class DifferentiatingVideos {
 		
 		return false;
 	}
+	
 	
 }
