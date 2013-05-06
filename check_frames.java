@@ -48,10 +48,10 @@ static int total_frame_size;
 	
 	public static ArrayList<IplImage>complete_video =new ArrayList<IplImage>();
 	
-	public static void main77(String[] args) {
+	public static void main888(String[] args) {
 		// TODO Auto-generated method stub
 		
-		String fileName = "C:\\Users\\Jay\\Documents\\project_files\\video2.rgb";
+		String fileName = "C:\\Users\\Jay\\Documents\\project_files\\video1.rgb";
 			
 			BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		    
@@ -136,16 +136,41 @@ static int total_frame_size;
 		    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		    frame.pack();
 		    frame.setVisible(true);
+		
+    		BufferedImage result2 = new BufferedImage(sum.width, sum.height, BufferedImage.TYPE_INT_RGB);
+			JFrame frame2 = new JFrame();
+		    JLabel label2 = new JLabel(new ImageIcon(result2));
+		    frame2.getContentPane().add(label2, BorderLayout.CENTER);
+		    frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		    frame2.pack();
+		    frame2.setVisible(true);
+		
+		    
 		    int counter_no=100;
+		    int counter_no1=100;
 		    Scanner scan = new Scanner(System.in);
 		    
 		     while(true)
 			 {
 		    	 
-		     	result.setData( (complete_video.get(counter_no)).getBufferedImage().getRaster());
-				frame.repaint();
-				 	    
+		    	 System.out.println("ENter the First frame no:");	    
+				 counter_no1 = scan.nextInt(); 
+		    	 
+		     	 result.setData( (complete_video.get(counter_no1)).getBufferedImage().getRaster());
+				 frame.repaint();
+				 System.out.println("ENter the Second frame no:");	    
 				 counter_no = scan.nextInt();
+				 
+				 
+				 result2.setData( (complete_video.get(counter_no)).getBufferedImage().getRaster());				 
+				 frame2.repaint();
+				
+				int hist_compared_value=(int) cvCompareHist(histogram_color_difference.getHueHistogram(complete_video.get(counter_no1)), histogram_color_difference.getHueHistogram(complete_video.get(counter_no)), CV_COMP_CHISQR);
+				CvMat d1 = feature_detection.featureDetect(complete_video.get(counter_no1));
+				CvMat d2 = feature_detection.featureDetect(complete_video.get(counter_no));				
+				double fd_value=(feature_detection.match(d1,d2));
+				System.out.println("Hist value is "+hist_compared_value+"\tFD value: "+fd_value);
+				
 			}
 		    
 		    

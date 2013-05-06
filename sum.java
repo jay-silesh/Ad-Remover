@@ -73,14 +73,14 @@ public class sum {
 	public static int width = 352;
 	public static int height = 288;
 	public static double feature_detection_threshold= 0.3;
-	public static int merge_threshold=250;
+	public static int merge_threshold=120;
 	
 	
 	//static ArrayList<int[][]> image_rgb_values = new ArrayList<int[][]>() ;
 	
 	public static ArrayList<IplImage>complete_video =new ArrayList<IplImage>();
 	
-	public static void main(String[] args) {
+	public static void main88(String[] args) {
 		// TODO Auto-generated method stub
 		
 		//Contains all the frames which have gone through Histogram process..
@@ -92,7 +92,7 @@ public class sum {
 		ArrayList<shots_structure> ss_fd_frames_convert2=new ArrayList<shots_structure>();
 		
 		long start=System.currentTimeMillis();
-		String fileName = "C:\\Users\\Jay\\Documents\\project_files\\video1.rgb";
+		String fileName = "C:\\Users\\Jay\\Documents\\project_files\\video4.rgb";
 			
 			BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		    
@@ -188,10 +188,7 @@ public class sum {
 		    			/*System.out.println("Adding frame no: "+counter_access_frames);
 		    			result.setData( iplimg.getBufferedImage().getRaster());
 						frame.repaint();
-						
 						DataInputStream in=new DataInputStream(System.in);
-			
-
 						int i = scan.nextInt();*/
 						
 		    			shots_structure temp_ss=new shots_structure();
@@ -223,6 +220,9 @@ public class sum {
 		    System.out.println("\nFeature Detection done!...");
 		    System.out.println("Mins taken: "+(((System.currentTimeMillis()-start)/1000)/60));
 		    extra_functions.write_data_difference(ss_fd_frames,1);
+		 
+		//    extra_functions.display_frames_NEW(ss_fd_frames,250);
+		    
 		    merge_shots(ss_fd_frames,ss_fd_frames_convert);
 		    System.out.println("\nMerging done...");
 		    System.out.println("Mins taken: "+(((System.currentTimeMillis()-start)/1000)/60));
@@ -429,7 +429,6 @@ public class sum {
 			
 			
 		 	int prev_start=ss_hist_frames2.get(counter).frame_number;
-		 //	int prev_start=0;
 		 	int sum_diff=0;
 			while(counter+1 < ss_hist_frames2.size())
 			{
@@ -438,27 +437,7 @@ public class sum {
 				
 				double fd_value=(feature_detection.match(d1,d2));
 				
-				if(fd_value==1.0)
-				{
-					shots_structure temp_ss=new shots_structure();
-					temp_ss.start_frame=prev_start;
-					temp_ss.end_frame=ss_hist_frames2.get(counter).frame_number;
-					temp_ss.tf=temp_ss.end_frame-temp_ss.start_frame+1;
-					ss_fd_frames2.add(temp_ss);
-					
-					int image_no=ss_hist_frames2.get(counter+1).frame_number;
-					double dxdy=1.0;
-					while(dxdy==1.0 )
-					{
-						CvMat dx = feature_detection.featureDetect(complete_video.get(image_no));
-						CvMat dy = feature_detection.featureDetect(complete_video.get(image_no+1));
-						dxdy=(feature_detection.match(dx,dy));
-						prev_start=image_no++;
-					}
-					counter++;
-					
-				}
-				else if( fd_value < feature_detection_threshold)
+				 if( fd_value < feature_detection_threshold )
 				{
 					 	shots_structure temp_ss=new shots_structure();
 						temp_ss.start_frame=prev_start;

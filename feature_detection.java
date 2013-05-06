@@ -46,8 +46,7 @@ public class feature_detection {
         	return null;
         }      
         
-    //    System.out.println("Keypoints found: "+ keypoints.capacity()); 
-    //    System.out.println("Descriptors calculated: "+descriptors.rows()); 
+   
         return descriptors;
 		
 	}
@@ -66,7 +65,8 @@ public class feature_detection {
 			return (double)count/(double)matches.size();
 		}
 		
-		return 1.0;
+	//	return 1.0;
+		return 0.1;
 	}
 }	
 

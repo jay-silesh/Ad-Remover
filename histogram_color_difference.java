@@ -85,8 +85,6 @@ public class histogram_color_difference {
 	   
 		if(image1==null || image1.nChannels()<3) new Exception("Error!");
 		
-	//	if(image1==null || image1.nChannels()<3) new Exception("Error!");
-	
 	    // Split the 3 channels into 3 images
 	    CvSize size = image1.cvSize();
 	    int depth=image1.depth();
@@ -97,11 +95,17 @@ public class histogram_color_difference {
 	    
 	    IplImageArray hsvChannels = splitChannels(image);
 	   
+	   /* int numberOfBins=100;
+	    float minRange= 0f;
+	    float maxRange= 180f;
+	    int dims = 1;
+	   */ 
 	    int numberOfBins=255;
 	    float minRange= 0f;
 	    float maxRange= 180f;
-	    
 	    int dims = 1;
+		
+	    
 	    int[]sizes = new int[]{numberOfBins};
 	    int histType = CV_HIST_ARRAY;
 	    float[] minMax = new  float[]{minRange, maxRange};
@@ -114,7 +118,7 @@ public class histogram_color_difference {
 	//    cvCalcHist(hsvChannels.position(1),hist, accumulate, mask);
 	 //   cvCalcHist(hsvChannels.position(2),hist, accumulate, mask);
 	    cvCalcHist(hsvChannels.position(0),hist, accumulate, mask);
-		 
+	//	cvNormalizeHist(hist,1.0); 
 	 
 	    return hist;
 	}
