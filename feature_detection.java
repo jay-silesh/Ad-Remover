@@ -65,8 +65,8 @@ public class feature_detection {
 			return (double)count/(double)matches.size();
 		}
 		
-	//	return 1.0;
-		return 0.1;
+		return 1.0;
+	//	return 0.1;
 	}
 }	
 

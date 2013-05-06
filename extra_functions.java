@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Scanner;
 
 import javax.swing.ImageIcon;
@@ -72,7 +73,7 @@ public class extra_functions {
 				 	   try {
 				 		   	int sf=ss_fd_frames2.get(counter).start_frame;
 				 		   int ef=ss_fd_frames2.get(counter).end_frame;
-				 		  int tf=ss_fd_frames2.get(counter).tf;
+				 		  int tf=ef-sf;
 				 		   	
 							 out3.write("Start frame: "+sf+"\tEnd Frame: "+ef+"\tNo of frames in bwt: "+tf+"\n");
 						 	}  
@@ -125,7 +126,63 @@ public class extra_functions {
 			ArrayList<shots_structure> ss_fd_frames_convert, int i) {
 		// TODO Auto-generated method stub
 		
+		Scanner scan = new Scanner(System.in);
+		BufferedImage result = new BufferedImage(sum.width, sum.height, BufferedImage.TYPE_INT_RGB);
+		JFrame frame = new JFrame();
+	    JLabel label = new JLabel(new ImageIcon(result));
+	    frame.getContentPane().add(label, BorderLayout.CENTER);
+	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	    frame.pack();
+	    frame.setVisible(true);
+	    byte b = 0;
+		int counter=0;
+		while(counter<ss_fd_frames_convert.size())
+		{
+			
+			int st=ss_fd_frames_convert.get(counter).start_frame;
+			int et=ss_fd_frames_convert.get(counter).end_frame;
+			System.out.println("The counter is "+(counter+1)+"\t"+"Start :"+st+"  End :"+et+"  Diff is "+(et-st));
+			
+			//System.out.println(st+"\t"+et);
+			int ii=0;
+			while(st<=et)
+			{
+				 
+				result.setData( sum.complete_video.get(st+1).getBufferedImage().getRaster());
+				frame.repaint();
+				 	    
+		 	   try {
+					 Thread.sleep(40);
+				 	}  catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+				 	} 
+				
+				st++;
+				
+			}
+			counter++;
+			
+
+
+			
+			int xxi = scan.nextInt();
+
+			
+			
+			
+		}
 		
+		
+	}
+		 
+	
+	public static void display_linkedlist(
+			LinkedList<shots_structure> ss_fd_frames_convert, int i) {
+		// TODO Auto-generated method stub
+		
+
+		Scanner scan = new Scanner(System.in);
 		BufferedImage result = new BufferedImage(sum.width, sum.height, BufferedImage.TYPE_INT_RGB);
 		JFrame frame = new JFrame();
 	    JLabel label = new JLabel(new ImageIcon(result));
@@ -161,15 +218,9 @@ public class extra_functions {
 			}
 			counter++;
 			
-			DataInputStream in=new DataInputStream(System.in);
 			
-			try {
-				b = in.readByte();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			char ch=(char)b;
+			int xxi = scan.nextInt();
+
 			
 			
 			
@@ -177,8 +228,13 @@ public class extra_functions {
 		
 		
 	}
-		 
+	
 
 	 
 }
+
+
+
+	 
+
 
