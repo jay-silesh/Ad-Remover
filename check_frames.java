@@ -41,17 +41,17 @@ static int total_frame_size;
 	public static int width = 352;
 	public static int height = 288;
 	public static double feature_detection_threshold= 0.3;
-	public static int merge_threshold=250;
+	public static int merge_threshold=100;
 	
 	
 	//static ArrayList<int[][]> image_rgb_values = new ArrayList<int[][]>() ;
 	
 	public static ArrayList<IplImage>complete_video =new ArrayList<IplImage>();
 	
-	public static void main888(String[] args) {
+	public static void main9(String[] args) {
 		// TODO Auto-generated method stub
 		
-		String fileName = "C:\\Users\\Jay\\Documents\\project_files\\video1.rgb";
+		String fileName = "C:\\Users\\Jay\\Documents\\project_files\\op.rgb";
 			
 			BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		    
@@ -126,6 +126,9 @@ static int total_frame_size;
 		    } catch (IOException e) {
 		      e.printStackTrace();
 		    }
+		    
+		    
+		    System.out.println(counter_access_frames);
 		    System.out.println("completed iputting...");
 		    
 		    
@@ -178,6 +181,83 @@ static int total_frame_size;
 		    
 		    
 } 
+	
+	
+	
+	
+	public static void main90(String[] args) {
+		// TODO Auto-generated method stub
+		
+		String fileName = "C:\\Users\\Jay\\Documents\\project_files\\vob.rgb";
+			
+			BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		    
+		    BufferedImage result = new BufferedImage(sum.width, sum.height, BufferedImage.TYPE_INT_RGB);
+					JFrame frame = new JFrame();
+				    JLabel label = new JLabel(new ImageIcon(result));
+				    frame.getContentPane().add(label, BorderLayout.CENTER);
+				    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				    frame.pack();
+				    frame.setVisible(true);
+				
+		    
+		    IplImage iplimg = IplImage.create(width, height, IPL_DEPTH_8U, 3);
+		    int offset = 0;
+		    try {
+			    File file = new File(fileName) ;
+			    InputStream is = new FileInputStream(file) ;
+			    System.out.println("Starting.....");
+			    long len = file.length();
+			    byte[] bytes = new byte[width * height * 3];
+			    
+			    int numRead = 0;
+				
+				
+		        while (offset < file.length() ) {
+		        	
+		        	
+		        	int ind = 0;
+		        	numRead=is.read(bytes, 0,width*height*3);
+		        	if(numRead < 0)
+		        		break;
+		        	
+		    		for(int y = 0; y < height; y++){
+		    	
+		    			for(int x = 0; x < width; x++){
+		    		 
+		    				byte a = 0;
+		    				byte r = bytes[ind+height*width*2];
+		    				byte g = bytes[ind+height*width];
+		    				byte b = bytes[ind]; 
+		    				
+		    				int pix = 0xff000000 | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
+		    				img.setRGB(x,y,pix);
+		    			
+		    				ind++;
+		    			}
+		    		}
+		    		
+		    	
+		    			
+		    		iplimg=IplImage.createFrom(img);
+		    		result.setData(iplimg.getBufferedImage().getRaster());
+					frame.repaint();
+					
+		    		
+		    		offset += numRead;
+					
+		        }
+		        is.close();
+		    		
+		    	
+				
+				
+		    } catch (FileNotFoundException e) {
+		      e.printStackTrace();
+		    } catch (IOException e) {
+		      e.printStackTrace();
+		    }
+	}
 	
 	
 }

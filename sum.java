@@ -73,8 +73,11 @@ public class sum {
 	public static int width = 352;
 	public static int height = 288;
 	public static double feature_detection_threshold= 0.3;
-	public static int merge_threshold=250;
-	
+	public static int merge_threshold=100;
+	public static String fileName;
+	public static String audiofile;
+	public static File soundfile;
+	public static String audio_output_file,video_output_file;
 	
 	//static ArrayList<int[][]> image_rgb_values = new ArrayList<int[][]>() ;
 	
@@ -91,8 +94,12 @@ public class sum {
 		ArrayList<shots_structure> ss_fd_frames_convert=new ArrayList<shots_structure>();
 		ArrayList<shots_structure> ss_fd_frames_convert2=new ArrayList<shots_structure>();
 		
+		fileName = args[0];
+		audiofile = args[1];
+		video_output_file=args[2];
+		audio_output_file=args[3];
+		
 		long start=System.currentTimeMillis();
-		String fileName = "C:\\Users\\Jay\\Documents\\project_files\\video4.rgb";
 			
 			BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		    
@@ -113,17 +120,7 @@ public class sum {
 			    
 			    int numRead = 0;
 				
-				/****************************************************************/
-			    
-			/*    JFrame frame = new JFrame();
-			    JLabel label = new JLabel(new ImageIcon(result));
-			    frame.getContentPane().add(label, BorderLayout.CENTER);
-			    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			    frame.pack();
-			    frame.setVisible(true);
-			    */
-			    /****************************************************************/
-				
+					
 				/****************************************************************/
 				//Reading the image just once
 						int ind = 0;
@@ -148,10 +145,11 @@ public class sum {
 			    		iplimg_temp=IplImage.createFrom(img);
 			    		offset += numRead;
 			    		complete_video.add(iplimg_temp);
-				/*****************************************************************/
+
 			    		Scanner scan = new Scanner(System.in);
 						
-		        while (offset < file.length() ) {
+		        while (offset < file.length() ) 
+		        {
 		        	
 		        	
 		        	ind = 0;
@@ -185,12 +183,7 @@ public class sum {
 		    		if(histogram_color_difference.check_threshold(hist_compared_value))
 		    		{
 		    			
-		    			/*System.out.println("Adding frame no: "+counter_access_frames);
-		    			result.setData( iplimg.getBufferedImage().getRaster());
-						frame.repaint();
-						DataInputStream in=new DataInputStream(System.in);
-						int i = scan.nextInt();*/
-						
+		    			
 		    			shots_structure temp_ss=new shots_structure();
 		    			temp_ss.frame_number=counter_access_frames;
 		    			temp_ss.value=hist_compared_value;
@@ -219,208 +212,238 @@ public class sum {
 		    process_feature_detection(ss_hist_frames,ss_fd_frames);
 		    System.out.println("\nFeature Detection done!...");
 		    System.out.println("Mins taken: "+(((System.currentTimeMillis()-start)/1000)/60));
-		    extra_functions.write_data_difference(ss_fd_frames,1);		 
+		 //   extra_functions.write_data_difference(ss_fd_frames,1);		 
 		//    extra_functions.display_frames_NEW(ss_fd_frames,250);
 		    
 		    merge_shots(ss_fd_frames,ss_fd_frames_convert);
 		    System.out.println("\nMerging done...");
 		    System.out.println("Mins taken: "+(((System.currentTimeMillis()-start)/1000)/60));
 		    
-		 //   extra_functions.write_data_difference(ss_fd_frames_convert,2);
-		    extra_functions.display_frames_NEW(ss_fd_frames_convert,250);
-		/*    System.out.println("Starting Differentiaing videos...");
+	//	    extra_functions.write_data_difference(ss_fd_frames_convert,2);
+	//	    extra_functions.display_frames_NEW(ss_fd_frames_convert,250);
+		
+		    
+
+		    System.out.println("Starting Differentiaing videos...");
 		    DifferentiatingVideos.differ_shots(ss_fd_frames_convert);
+		  //  extra_functions.display_linkedlist(DifferentiatingVideos.maxstructure, 10);
+		    
+		    
+		    try {
+				extra_functions.write_file(DifferentiatingVideos.maxstructure);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		    
+		    
+		    
+
+		    System.out.println("generating audio file");
+		     soundfile =  new File(audiofile);
+		    InputStream soundis=null;
+		    
+		    try {
+				soundis = new FileInputStream(soundfile);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		     
+		    
+		   GenerateAudio.getaudio(soundis);
+		   //  System.out.println("Complete!!\n");
+		   for(int j=0;j<DifferentiatingVideos.maxstructure.size();j++){
+			   /*int time = DifferentiatingVideos.maxstructure.get(j).end_frame - DifferentiatingVideos.maxstructure.get(j).similar_frames;
+			   time = time/24;
+			   System.out.println("shot "+time);*/
+			   
+			   int startshot= (DifferentiatingVideos.maxstructure.get(j).start_frame/24) ;
+			   int endshot = (DifferentiatingVideos.maxstructure.get(j).end_frame/24);
+			   
+			//   System.out.println("time "+ (endshot-startshot));
+		   }
+		    
+		    
+		       /*DifferentiatingVideos.differ_shots(ss_fd_frames_convert);
 		    System.out.println("Mins taken: "+(((System.currentTimeMillis()-start)/1000)/60));
 		    
-		    extra_functions.display_frames_NEW(DifferentiatingVideos.video_shots,250);
-*/
+		    extra_functions.display_frames_NEW(DifferentiatingVideos.video_shots,100);*/
 		    System.out.println("Complete!!\n");
+		  
+		    
+		      check_frames.main90(null);
 }
 	
 	 	
 
 		
-	public static void merge_shots(ArrayList<shots_structure> input_ss, ArrayList<shots_structure> output_ss)
-	// TODO Auto-generated method stub
-	{
-		int count1=0;
-		int count2=count1+1;
-		int max_size=input_ss.size();
-		while(count1+1 < max_size)
+		public static void merge_shots(ArrayList<shots_structure> input_ss, ArrayList<shots_structure> output_ss)
+		// TODO Auto-generated method stub
 		{
-					System.out.println("comapring shots - count "+count1);
-					
-					int end_point=input_ss.get(count1).end_frame;
-					int start_point=input_ss.get(count1).start_frame;
-				//	int end_point_frame=input_ss.get(count1).frame_number;
-					int end_point_frame=count1;
-					System.out.println("Looping will start now...Start: "+start_point+"   End point:"+ end_point+"  count1: "+count1+"   count2: "+count2+"   EndPointFrame: "+end_point_frame);
-					
-					assert input_ss.get(count2).end_frame>=input_ss.get(count1).start_frame : "Here1";
-					
-					if( (input_ss.get(count1).end_frame-input_ss.get(count1).start_frame)<merge_threshold)
-					{
-						assert input_ss.get(count2).end_frame>=input_ss.get(count1).start_frame : "Here1";
+			int count1=0;
+			int count2=count1+1;
+			int max_size=input_ss.size();
+			while(count1+1 < max_size)
+			{
+						System.out.println("comapring shots - count "+count1);
 						
-							System.out.println("tf greater than threshold....Start: "+start_point+"   End point:"+ end_point+"  count1: "+count1+"   count2: "+count2+"   EndPointFrame: "+end_point_frame);
-							if(  (input_ss.get(count2).end_frame-input_ss.get(count1).start_frame) >merge_threshold)
-							{
-								System.out.println(" CUR2-CUR1 is getter than merge_threshold....Start: "+start_point+"   End point:"+ end_point+"  count1: "+count1+"   count2: "+count2+"   EndPointFrame: "+end_point_frame);
-								
-								if(!output_ss.isEmpty())
-								{	
-									shots_structure last_ss= output_ss.get(output_ss.size() - 1);
-									if(last_ss.start_frame==input_ss.get(count1).start_frame)
-									{
-										output_ss.remove(output_ss.get(output_ss.size()-1));
-									}
-								}
-								shots_structure temp_ss=new shots_structure();
-								temp_ss.end_frame=end_point;
-								temp_ss.start_frame=start_point;
-								temp_ss.tf=end_point-start_point+1;
-								output_ss.add(temp_ss);
-								count1++;
-								count2=count1+1;
-								if(count2>=max_size)
-									break;
-								continue;						
-							}
-							else
-							{
-								System.out.println(" CUR2-CUR1 is lesse than merge_threshold....Start: "+start_point+"   End point:"+ end_point+"  count1: "+count1+"   count2: "+count2+"   EndPointFrame: "+end_point_frame);
-								assert input_ss.get(count2).end_frame>=input_ss.get(count1).start_frame : "Here3";
-								
-								while(true)
+						int end_point=input_ss.get(count1).end_frame;
+						int start_point=input_ss.get(count1).start_frame;
+						int end_point_frame=count1;
+						
+						
+						if( (input_ss.get(count2).end_frame-input_ss.get(count1).start_frame)<=merge_threshold)
+						{
+								System.out.println(" tf greater than threshold");
+								if(  (input_ss.get(count2).end_frame-input_ss.get(count1).start_frame) >merge_threshold)
 								{
-									assert input_ss.get(count2).end_frame>=input_ss.get(count1).start_frame : "Here2";
+									System.out.println(" CUR2-CUR1 is getter than merge_threshold");
 									
-									if( (input_ss.get(count2).end_frame- input_ss.get(count1).start_frame) >merge_threshold)
-									{
-												System.out.println("2. CUR2-CUR1 is getter than merge_threshold....Start: "+start_point+"   End point:"+ end_point+"  count1: "+count1+"   count2: "+count2+"   EndPointFrame: "+end_point_frame);
-												shots_structure temp=new shots_structure();
-												temp.end_frame=end_point;
-												temp.start_frame=start_point;
-												temp.tf=end_point-start_point+1;
-												
-												if(!output_ss.isEmpty())
-												{	shots_structure last_ss= output_ss.get(output_ss.size() - 1);
-													if(last_ss.start_frame==temp.start_frame)
-													{
-														output_ss.remove(output_ss.get(output_ss.size()-1));
-													}
-												}
-												output_ss.add(temp);
-												
-												if(count1==end_point_frame)
-													count1=end_point_frame+1;
-												else
-													count1=end_point_frame;
-												
-												input_ss.get(end_point_frame).start_frame=start_point;
-												System.out.println("Chaing the Shot_start_frame to :"+start_point+"   The SHOT no: "+end_point_frame+"  Count1 :"+count1);
-												count2=count1+1;												
-												break;
+									if(!output_ss.isEmpty())
+									{	
+										shots_structure last_ss= output_ss.get(output_ss.size() - 1);
+										if(last_ss.start_frame==input_ss.get(count1).start_frame)
+										{
+											output_ss.remove(output_ss.get(output_ss.size()-1));
+										}
 									}
-									else  // If the next shot is basically matching
+									shots_structure temp_ss=new shots_structure();
+									temp_ss.end_frame=end_point;
+									temp_ss.start_frame=start_point;
+									temp_ss.tf=end_point-start_point+1;
+									output_ss.add(temp_ss);
+									count1++;
+									count2=count1+1;
+									if(count2>=max_size)
+										break;
+									continue;						
+								}
+								else
+								{
+									System.out.println(" CUR2-CUR1 is lesse than merge_threshold");
+									
+									while(true)
 									{
-										
-										assert input_ss.get(count2).end_frame>=input_ss.get(count1).start_frame : "Here4";
-										
-												boolean val=check_fd(input_ss.get(count1), input_ss.get(count2));
-												if(val)
-												{
-														System.out.println("The shots are same....Start: "+start_point+"   End point:"+ end_point+"  count1: "+count1+"   count2: "+count2+"   EndPointFrame: "+end_point_frame);
-														end_point=input_ss.get(count2).end_frame;
-														end_point_frame=count2;
-														count2++;
-														if(count2>=max_size)
-														{	
+										if( (input_ss.get(count2).end_frame-input_ss.get(count1).start_frame +1) >merge_threshold)
+										{
+													System.out.println("2. CUR2-CUR1 is getter than merge_threshold");
+													shots_structure temp=new shots_structure();
+													temp.end_frame=end_point;
+													temp.start_frame=start_point;
+													temp.tf=end_point-start_point+1;
+													
+													if(!output_ss.isEmpty())
+													{	shots_structure last_ss= output_ss.get(output_ss.size() - 1);
+														if(last_ss.start_frame==temp.start_frame)
+														{
+															output_ss.remove(output_ss.get(output_ss.size()-1));
+														}
+													}
+													output_ss.add(temp);
+													if(count1==end_point_frame)
+														count1=end_point_frame+1;
+													else 
+														count1=end_point_frame;   //CHECK HERE.... THIS MIGHT BE AN ERROR...
+													
+													count2=count1+1;
+													input_ss.get(end_point_frame).start_frame=start_point;
+													
+													break;
+										}
+										else  // If the next shot is basically matching
+										{
+											
+											
+													boolean val=check_fd(input_ss.get(count1), input_ss.get(count2));
+													if(val)
+													{
+														System.out
+																.println("Merging "+count1+" and "+count2 + " and Difference is "+( (input_ss.get(count2).end_frame-input_ss.get(count1).start_frame +1)));
+															System.out
+																	.println("The shots are same");
+															end_point=input_ss.get(count2).end_frame;
+															end_point_frame=count2;
+															count2++;
+															if(count2>=max_size)
+															{	
+																	shots_structure temp=new shots_structure();
+																	temp.end_frame=end_point;
+																	temp.start_frame=start_point;
+																	temp.tf=end_point-start_point+1;
+																	if(!output_ss.isEmpty())
+																	{	
+																		shots_structure last_ss= output_ss.get(output_ss.size() - 1);
+																		if(last_ss.start_frame==temp.start_frame)
+																		{
+																			output_ss.remove(output_ss.get(output_ss.size()-1));
+																		}
+																	}
+																	output_ss.add(temp);
+																	
+																	count1=end_point_frame;
+																	count2=count1+1;
+																	input_ss.get(end_point_frame).start_frame=start_point;
+																	break;
+															}
+															
+															
+														
+													}
+													else if(!val)
+													{
+														System.out
+														.println("The shots are diff");
+						
+															count2++;
+															if(count2>=max_size )
+															{	
 																shots_structure temp=new shots_structure();
 																temp.end_frame=end_point;
 																temp.start_frame=start_point;
 																temp.tf=end_point-start_point+1;
+																
 																if(!output_ss.isEmpty())
-																{	
-																	shots_structure last_ss= output_ss.get(output_ss.size() - 1);
+																{	shots_structure last_ss= output_ss.get(output_ss.size() - 1);
 																	if(last_ss.start_frame==temp.start_frame)
 																	{
 																		output_ss.remove(output_ss.get(output_ss.size()-1));
 																	}
 																}
 																output_ss.add(temp);
-																
 																count1=end_point_frame;
 																count2=count1+1;
-																input_ss.get(end_point_frame).start_frame=start_point;
-																System.out.println("Chaing the Shot_start_frame to :"+start_point+"   The SHOT no: "+end_point_frame+"  Count1 :"+count1);
-	
+																input_ss.get(end_point_frame).start_frame=start_point;																
 																break;
-														}
-														
-														
-													
-												}
-												else if(!val)
-												{
-													assert input_ss.get(count2).end_frame>=input_ss.get(count1).start_frame : "Here6";
-													
-													System.out
-													.println("The shots are diff....Start: "+start_point+"   End point:"+ end_point+"  count1: "+count1+"   count2: "+count2+"   EndPointFrame: "+end_point_frame);
-					
-														count2++;
-														if(count2>=max_size)// || ( (input_ss.get(count2).end_frame-input_ss.get(count1).start_frame+1) >merge_threshold))
-														{	
-															shots_structure temp=new shots_structure();
-															temp.end_frame=end_point;
-															temp.start_frame=start_point;
-															temp.tf=end_point-start_point+1;
-															
-															if(!output_ss.isEmpty())
-															{	shots_structure last_ss= output_ss.get(output_ss.size() - 1);
-																if(last_ss.start_frame==temp.start_frame)
-																{
-																	output_ss.remove(output_ss.get(output_ss.size()-1));
-																}
 															}
-															output_ss.add(temp);
-															count1=end_point_frame;
-															count2=count1+1;
-															input_ss.get(end_point_frame).start_frame=start_point;																
-															System.out.println("Chaing the Shot_start_frame to :"+start_point+"   The SHOT no: "+end_point_frame+"  Count1 :"+count1);
-
-															break;
-														}
-												
-												}
+													
+													}
+										}
+									
 									}
-								
+									//This is after it breaks...
 								}
-								//This is after it breaks...
-							}
-						
-					}
-					else
-					{	
-						assert input_ss.get(count2).end_frame>=input_ss.get(count1).start_frame : "Here7";
-						
-						System.out.println("Shot itself is bigger....Start: "+start_point+"   End point:"+ end_point+"  count1: "+count1+"   count2: "+count2+"   EndPointFrame: "+end_point_frame);
-						if(!output_ss.isEmpty())
-						{	shots_structure last_ss= output_ss.get(output_ss.size() - 1);
-							if(last_ss.start_frame==input_ss.get(count1).start_frame)
-							{
-								output_ss.remove(output_ss.get(output_ss.size()-1));
-							}
+							
 						}
-						
-						output_ss.add(input_ss.get(count1));
-						count1++;
-						count2=count1+1;
-						if(count2>=max_size)
-							break;							
-					}
-		}	
-}
+						else
+						{	
+							
+							if(!output_ss.isEmpty())
+							{	shots_structure last_ss= output_ss.get(output_ss.size() - 1);
+								if(last_ss.start_frame==input_ss.get(count1).start_frame)
+								{
+									output_ss.remove(output_ss.get(output_ss.size()-1));
+								}
+							}
+							
+							output_ss.add(input_ss.get(count1));
+							count1++;
+							count2=count1+1;
+							if(count2>=max_size)
+								break;							
+						}
+			}	
+	}
 
 
 
@@ -472,8 +495,8 @@ public class sum {
 				CvMat d2 = feature_detection.featureDetect(complete_video.get(ss_hist_frames2.get(counter+1).frame_number));
 				
 				double fd_value=(feature_detection.match(d1,d2));
-				
-				/*if(fd_value==1.0)
+				/*
+				if(fd_value==1.0)
 				{
 					shots_structure temp_ss=new shots_structure();
 					temp_ss.start_frame=prev_start;
@@ -494,7 +517,7 @@ public class sum {
 					counter--;
 					
 				}				
-				else */if( fd_value < feature_detection_threshold )//|| fd_value==1.0)
+				else*/ if( fd_value < feature_detection_threshold )//|| fd_value==1.0)
 				{
 					 	shots_structure temp_ss=new shots_structure();
 						temp_ss.start_frame=prev_start;

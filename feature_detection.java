@@ -14,6 +14,7 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MaximizeAction;
 
 import com.googlecode.javacv.cpp.opencv_core.CvMat;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
@@ -58,15 +59,30 @@ public class feature_detection {
 			int count = 0;
 			for(int i=0; i<matches.size()-1; i++) {
 				if(matches.size(i) > 1) {
-					if(matches.get(i, 0).distance()/matches.get(i, 1).distance() < 0.9)
+						if(matches.get(i, 0).distance()/matches.get(i, 1).distance() < 0.9)
 						count++;
 				}
 			}
-			return (double)count/(double)matches.size();
+			
+			double first_result=((double)count/(double)matches.size());
+			
+			DescriptorMatcher matcher2 = new BFMatcher();
+			DMatchVectorVector matches2 = new DMatchVectorVector();
+			
+			matcher2.knnMatch(d2, d1, matches2, 2, null, true);	
+			count = 0;
+			for(int i=0; i<matches2.size()-1; i++) {
+				if(matches2.size(i) > 1) {
+						if(matches2.get(i, 0).distance()/matches2.get(i, 1).distance() < 0.9)
+						count++;
+				}
+			}
+			double second_result= ((double)count/(double)matches2.size());
+			return (Math.max(first_result,second_result));
 		}
 		
 		return 1.0;
-	//	return 0.1;
+
 	}
 }	
 

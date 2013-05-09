@@ -1,18 +1,28 @@
 import java.awt.BorderLayout;
 import java.awt.image.BufferedImage;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.ListIterator;
 import java.util.Scanner;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 
 public class extra_functions {
@@ -136,6 +146,7 @@ public class extra_functions {
 	    frame.setVisible(true);
 	    byte b = 0;
 		int counter=0;
+		//result.setData( sum.complete_video.get(0).getBufferedImage().getRaster());
 		while(counter<ss_fd_frames_convert.size())
 		{
 			
@@ -143,16 +154,17 @@ public class extra_functions {
 			int et=ss_fd_frames_convert.get(counter).end_frame;
 			System.out.println("The counter is "+(counter+1)+"\t"+"Start :"+st+"  End :"+et+"  Diff is "+(et-st));
 			
-			//System.out.println(st+"\t"+et);
 			int ii=0;
-			while(st<=et)
+			while(st<et)
 			{
-				 
-				result.setData( sum.complete_video.get(st+1).getBufferedImage().getRaster());
+				if(st==0 || st==1)
+					result.setData( sum.complete_video.get(st+1).getBufferedImage().getRaster());
+				else
+					result.setData( sum.complete_video.get(st-1).getBufferedImage().getRaster());
 				frame.repaint();
 				 	    
 		 	   try {
-					 Thread.sleep(40);
+					 Thread.sleep(10);
 				 	}  catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -230,11 +242,99 @@ public class extra_functions {
 	}
 	
 
-	 
+	
+	public static byte[] read_video_frame(int frame_no)
+	{
+		
+		int numRead = 0;
+		int	ind = 0;
+		int height=sum.height;
+		int width=sum.width;
+		File file = new File(sum.fileName) ;
+		InputStream is = null;
+		try {
+			is = new FileInputStream(file);
+		} catch (FileNotFoundException e3) {
+			// TODO Auto-generated catch block
+			e3.printStackTrace();
+		}
+	    
+		
+    	byte[] bytes = new byte[sum.width* sum.height * 3];
+		
+    	
+	    	try {
+	    			is.skip(sum.width*sum.height*3*frame_no);
+					numRead=is.read(bytes, 0,sum.width*sum.height*3);
+					
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+	        	
+	    		for(int y = 0; y < height; y++)
+	    		{
+	    	
+	    			for(int x = 0; x < width; x++)
+	    			{
+	    		 
+	    				byte a = 0;
+	    				byte r = bytes[ind+height*width*2];
+	    				byte g = bytes[ind+height*width];
+	    				byte b = bytes[ind]; 
+	    				
+	    			
+	    			}
+	    		}
+    		
+	    return bytes;	
+	}
+	
+	
+	
+	public static void write_file(LinkedList<shots_structure> ll) throws IOException
+	{
+		
+		String strFileName = sum.video_output_file;
+        BufferedOutputStream bos = null;
+        FileOutputStream fos=null;
+		try {
+			fos = new FileOutputStream(new File(strFileName));
+			 bos = new BufferedOutputStream(fos);
+		       
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+      
+        
+		
+		for(int i=0;i<ll.size();i++)
+		{
+			shots_structure temp=ll.get(i);
+			int st=temp.start_frame;
+			int	et=temp.end_frame;
+			
+			while(st<=et)
+			{
+				//read_video_frame(st)
+				  bos.write(read_video_frame(st++));
+			
+			}
+		
+		
+		
+		}
+		
+		bos.close();	
+		
+		
+	}
+		
+		
+		
+	
+	
+	
+	
 }
-
-
-
-	 
-
-

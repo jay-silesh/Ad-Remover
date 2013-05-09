@@ -85,7 +85,8 @@ public class histogram_color_difference {
 	public static CvHistogram getHueHistogram(IplImage image1)
 	{
 	   
-		if(image1==null || image1.nChannels()<3) new Exception("Error!");
+	//	if(image1==null || image1.nChannels()<3) new Exception("Error!");
+		if(image1==null) new Exception("Error!");
 		
 	    // Split the 3 channels into 3 images
 	    CvSize size = image1.cvSize();

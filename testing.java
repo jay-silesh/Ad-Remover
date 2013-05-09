@@ -1,19 +1,30 @@
+import java.util.ArrayList;
+import java.util.Iterator;
+
 
 public class testing {
 
-	public static void main999(String[] argv)
+	public static void maine32(String[] argv)
 	{
-		for(int j=0;j<3;j++)
+		int []i=new int[3];
+		settibvndk(i);
+		i[2]=333;
+		//settibvndk(i);
+		for(int ii=0;ii<i.length;ii++)
 		{
-			for(int i=0;i<20;i++)
-			{
-				System.out.println(i);
-				if(i==3)
-					break;
-			}
-			System.out.println(j);
+			System.out.println(i[ii]);
 		}
 		
+		
+		
+	}
+	
+	
+	public static void settibvndk(int []a)
+	{
+		a[0]=999;
+		a[2]=888;
+		a[1]=777;
 	}
 	
 }

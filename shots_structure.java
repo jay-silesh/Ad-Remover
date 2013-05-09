@@ -9,6 +9,7 @@ public class shots_structure {
 	int start_frame;
 	int end_frame;
 	int tf;
+	int similar_frames;
 	
 	public shots_structure() {
 		// TODO Auto-generated constructor stub
@@ -28,6 +29,7 @@ public class shots_structure {
 		this.start_frame = ss.start_frame ; 
 		this.end_frame = ss.end_frame ;
 		this.tf = ss.tf;
+		this.tf=ss.similar_frames;
 		
 	}
 	
